@@ -1,31 +1,42 @@
 #$ -S /usr/local/bin/Rscript
-setwd("/home/students/wuj92/vaccine")
+setwd("~/Desktop/Peter Gilbert/simulation")
 
 args = commandArgs(TRUE)
-h = as.numeric(args[[1]])
-n = as.numeric(args[[2]])
-nrep = as.numeric(args[[3]])
+h = as.numeric(args[[1]]) #.1~.5 bandwith
+nv = as.numeric(args[[2]]) # trt 4200 ctl 3000
+np = as.numeric(args[[3]])
+nrep = as.numeric(args[[4]]) 
 library(SuperLearner)
 
-generate.data = function(n) {
+generate.data = function(nv, np) {
   logit = function(x) log(x/(1-x))
   expit = function(x) exp(x)/(1+exp(x))
-  A = c(rep(1,n/2),rep(0,n/2))
+  # treatment
+  A = c(rep(1,nv),rep(0,np)) # A = c(rep(1,n/2),rep(0,n/2))
+  n = nv+np
   library(mvtnorm)
-  ws = rmvnorm(n, mean=rep(0.41,2),sigma=matrix(c(0.55^2,0.55^2*0.5,0.55^2*0.5,0.55^2),2,2))
+  var_W = 1
+  var_S1 = 1
+  corr_S1_W = 0.5
+  ws = rmvnorm(n, mean=rep(0.41,2),
+               sigma=matrix(c( var_W ,corr_S1_W*sqrt(var_S1*var_W),
+                               corr_S1_W*sqrt(var_S1*var_W), var_S1),2,2)) # ws = rmvnorm(n, mean=rep(0.41,2),sigma=matrix(c(0.55^2,0.55^2*0.5,0.55^2*0.5,0.55^2),2,2))
+  # baseline covariate
   W = ws[,1]
+  # post-treatment biomarker
   S1 = ws[,2]
-  
-  beta0 = -1.2
-  beta1 = -1.8
-  betaW = -0.5
-  betaS0 = -0.1
-  betaS1 = -1
+   
+  # beta0 = -1.2
+  # beta1 = -1.8
+  # betaW = -0.5
+  # betaS0 = -0.1
+  # betaS1 = -1
   prob0 = numeric(n)
   prob1 = numeric(n)
   for (i in 1:n) {
-    prob0[i] = expit(beta0 + betaW*W[i] + betaS0*S1[i])
-    prob1[i] = expit(beta1 + betaW*W[i] + betaS1*S1[i])
+    vaccine_efficacy = 0.75 # 0.5 for later
+    prob0[i] =  0.04*(1.75/2) # prob0[i] = expit(beta0 + betaW*W[i] + betaS0*S1[i])
+    prob1[i] =  0.04*(1.75/2)*(1-vaccine_efficacy) # prob1[i] = expit(beta1 + betaW*W[i] + betaS1*S1[i])
   }
   Y0 = rbinom(n,1,prob0)
   Y1 = rbinom(n,1,prob1)
@@ -42,6 +53,8 @@ estimate = function(dat, h, s1star) {
   S1 = dat$S1
   Y = dat$Y
   n = length(A)
+  nv = sum(A)
+  np = n-nv
   Kh = function(x) exp(-(x/h)^2/2)/sqrt(2*pi)/h
   
   ############ initial estimate ############
@@ -52,42 +65,45 @@ estimate = function(dat, h, s1star) {
   P3hat = 0
   
   #S1|A=1,W
-    fit1 <- SuperLearner(Y = smooth.S1[A==1], X = data.frame(W=W[A==1]), family = gaussian(), 
-                         SL.library = SL.library, method = "method.NNLS")
-    P1hat = predict(fit1, data.frame(W))$pred
-    
-    
+  fit1 <- SuperLearner(Y = smooth.S1[A==1], X = data.frame(W=W[A==1]), family = gaussian(), 
+                       SL.library = SL.library, method = "method.NNLS")
+  P1hat = predict(fit1, data.frame(W))$pred
+  
+  
   #Y=1,S1|A=1,W
-    fit1 <- SuperLearner(Y = smooth.S1[A==1 & Y==1], X = data.frame(W=W[A==1 & Y==1]), family = gaussian(), 
-                         SL.library = SL.library, method = "method.NNLS")
-    fit2 <- SuperLearner(Y = Y[A==1], X = data.frame(W=W[A==1]), family = binomial(), 
-                         SL.library = SL.library, method = "method.NNLS")
-    P2hat = predict(fit1, data.frame(W=W))$pred * predict(fit2, data.frame(W=W))$pred
-
-    
+  fit1 <- SuperLearner(Y = smooth.S1[A==1 & Y==1], X = data.frame(W=W[A==1 & Y==1]), family = gaussian(), 
+                       SL.library = SL.library, method = "method.NNLS")
+  fit2 <- SuperLearner(Y = Y[A==1], X = data.frame(W=W[A==1]), family = binomial(), 
+                       SL.library = SL.library, method = "method.NNLS")
+  P2hat = predict(fit1, data.frame(W=W))$pred * predict(fit2, data.frame(W=W))$pred
+  
+  
   #Y=0,S0^c|A=0,W
-    fit1 <- SuperLearner(Y = smooth.S1[A==0 & Y==0], X = data.frame(W=W[A==0 & Y==0]), family = gaussian(), 
-                         SL.library = SL.library, method = "method.NNLS")
-    fit2 <- SuperLearner(Y = Y[A==0], X = data.frame(W=W[A==0]), family = binomial(), 
-                         SL.library = SL.library, method = "method.NNLS")
-    P3hat = predict(fit1, data.frame(W=W))$pred * (1-predict(fit2, data.frame(W=W))$pred)
-
-    
+  fit1 <- SuperLearner(Y = smooth.S1[A==0 & Y==0], X = data.frame(W=W[A==0 & Y==0]), family = gaussian(), 
+                       SL.library = SL.library, method = "method.NNLS")
+  fit2 <- SuperLearner(Y = Y[A==0], X = data.frame(W=W[A==0]), family = binomial(), 
+                       SL.library = SL.library, method = "method.NNLS")
+  P3hat = predict(fit1, data.frame(W=W))$pred * (1-predict(fit2, data.frame(W=W))$pred)
+  
+  
   #A=1|W
   fit = SuperLearner(Y = A, X = data.frame(W=W), family = binomial(), 
-                      SL.library = SL.library, method = "method.NNLS")
+                     SL.library = SL.library, method = "method.NNLS")
   Ahat = as.vector(fit$SL.predict)
   
   #################### fluctuation #####################
   
   #missing for A=0 & Y=1
   smooth.S1.nomissing = ifelse(is.na(smooth.S1), 100, smooth.S1)
+  P1hat = ifelse(P1hat<=0,  10^-100, P1hat) #???
   fit1 = glm( smooth.S1.nomissing ~ 1, weights = (A==1)/Ahat, offset = log(P1hat), family = poisson())
   P1star =  fit1$fitted.values
-    
+  
+  P2hat = ifelse(P2hat<=0, 10^-100, P2hat) #???
   fit2 = glm( (Y==1)*smooth.S1.nomissing ~ 1, weights = (A==1)/Ahat, offset = log(P2hat), family=poisson())
   P2star = fit2$fitted.values
-
+  
+  P3hat = ifelse(P3hat<=0,  10^-100, P3hat) #???
   fit3 = glm( (Y==0)*smooth.S1.nomissing ~ 1, weights = (A==0)/(1-Ahat), offset = log(P3hat), family=poisson())
   P3star = fit3$fitted.values
   
@@ -111,31 +127,34 @@ estimate = function(dat, h, s1star) {
   sd1 = sqrt(mean(D1^2)/n)
   sd2 = sqrt(mean(D2^2)/n)
   sd3 = sqrt(mean(D3^2)/n)
-
   
   return(list(psi=psi,sd=sd,psi1=psi1,psi2=psi2,psi3=psi3,sd1=sd1,sd2=sd2,sd3=sd3,init.psi=init.psi))
 }
 
-
 truth = function(s1star) {
-  logit = function(x) log(x/(1-x))
-  expit = function(x) exp(x)/(1+exp(x))
-  b00 = -1.2
-  b01 = -1.8
-  b1 = -0.5
-  b2 = -1
-  b3 = -0.1
+  # logit = function(x) log(x/(1-x))
+  # expit = function(x) exp(x)/(1+exp(x))
+  # b00 = -1.2
+  # b01 = -1.8
+  # b1 = -0.5
+  # b2 = -1
+  # b3 = -0.1
   #W, S1
   mu = rep(0.41,2)
-  sigma = matrix(c(0.55^2,0.55^2*0.5,0.55^2*0.5,0.55^2),2,2)
+  var_W = 1
+  var_S1 = 1
+  corr_S1_W = 0.5
+  sigma = matrix(c( var_W ,corr_S1_W*sqrt(var_S1*var_W),
+                    corr_S1_W*sqrt(var_S1*var_W), var_S1),2,2)
   
   psi1 = dnorm(s1star,mean=mu[2],sd=sqrt(sigma[2,2]))
   #conditional distribution of W|S1
-  muW = mu[1]+sigma[1,2]/sigma[2,2]*(s1star - mu[2])
-  sigW = sigma[1,1] - sigma[1,2]^2/sigma[2,2]
-  W = rnorm(1000000, mean=muW, sd=sqrt(sigW))
-  psi2 = mean(expit(b01 + b1*W + b2*s1star)) * psi1
-  psi3 = (1 - mean(expit(b00 + b1*W + b3*s1star))) * psi1
+  # muW = mu[1]+sigma[1,2]/sigma[2,2]*(s1star - mu[2])
+  # sigW = sigma[1,1] - sigma[1,2]^2/sigma[2,2]
+  # W = rnorm(1000000, mean=muW, sd=sqrt(sigW))
+  vaccine_efficacy = 0.75 # 0.5 for later
+  psi2 = 0.04*(1.75/2)*(1-vaccine_efficacy) * psi1 # psi2 = mean(expit(b01 + b1*W + b2*s1star)) * psi1
+  psi3 = (1 - 0.04*(1.75/2)) * psi1 # psi3 = (1 - mean(expit(b00 + b1*W + b3*s1star))) * psi1
   psi = log(psi2/(psi1-psi3))
   return(list(psi=psi, psi1=psi1, psi2=psi2, psi3=psi3))
 }
@@ -190,7 +209,7 @@ psi.sd1 = matrix(NA, nrep, lens)
 psi.sd2 = matrix(NA, nrep, lens)
 psi.sd3 = matrix(NA, nrep, lens)
 
-dat = generate.data(n=100000)
+dat = generate.data(nv=4200, np=3000)
 for (j in 1:lens) {
   out.smooth = smooth.truth(dat=dat$unobs, h=h, s1star=s1[j])
   smooth.true.psi[1,j] = out.smooth$psi
@@ -202,7 +221,7 @@ for (j in 1:lens) {
 
 
 for (iter in 1:nrep) {
-  dat = generate.data(n=n)
+  dat = generate.data(nv=nv, np=np)
   obs = dat$observed
   unobs = dat$unobserved
   for (j in 1:lens) {
