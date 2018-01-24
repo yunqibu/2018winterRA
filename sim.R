@@ -1,3 +1,8 @@
+# Inculde drop outs? Probability of random dropout after the immune response is measured of 0.10*(1.75/2).
+# No nested case-control sampling design yet
+# 100% cross over rate for now
+# Add in W S1 for data generation
+
 #$ -S /usr/local/bin/Rscript
 setwd("~/Desktop/Peter Gilbert/simulation")
 
@@ -5,19 +10,20 @@ args = commandArgs(TRUE)
 h = as.numeric(args[[1]]) #.1~.5 bandwith
 nv = as.numeric(args[[2]]) # trt 4200 ctl 3000
 np = as.numeric(args[[3]])
-nrep = as.numeric(args[[4]]) 
+corr_S1_W = as.numeric(args[[4]])
+crossover_rate = as.numeric(args[[5]])
+nrep = as.numeric(args[[6]]) 
 library(SuperLearner)
 
-generate.data = function(nv, np) {
+generate.data = function(nv, np,  corr_S1_W) {
   logit = function(x) log(x/(1-x))
   expit = function(x) exp(x)/(1+exp(x))
-  # treatment
+  # treatment variable A
   A = c(rep(1,nv),rep(0,np)) # A = c(rep(1,n/2),rep(0,n/2))
   n = nv+np
   library(mvtnorm)
   var_W = 1
   var_S1 = 1
-  corr_S1_W = 0.5
   ws = rmvnorm(n, mean=rep(0.41,2),
                sigma=matrix(c( var_W ,corr_S1_W*sqrt(var_S1*var_W),
                                corr_S1_W*sqrt(var_S1*var_W), var_S1),2,2)) # ws = rmvnorm(n, mean=rep(0.41,2),sigma=matrix(c(0.55^2,0.55^2*0.5,0.55^2*0.5,0.55^2),2,2))
@@ -41,7 +47,7 @@ generate.data = function(nv, np) {
   Y0 = rbinom(n,1,prob0)
   Y1 = rbinom(n,1,prob1)
   Y = A*Y1 + (1-A)*Y0 
-  S = ifelse(A==1, S1, ifelse(Y==0, S1, NA))
+  S = ifelse(A==1, S1, ifelse(Y==0, S1, NA)) # 100% cross over rate for now
   observed = list(A=A, W=W, Y=Y, S1=S)
   unobserved = list(S1=S1,Y0=Y0,Y1=Y1)
   return(list(observed=observed, unobserved=unobserved))
@@ -209,7 +215,7 @@ psi.sd1 = matrix(NA, nrep, lens)
 psi.sd2 = matrix(NA, nrep, lens)
 psi.sd3 = matrix(NA, nrep, lens)
 
-dat = generate.data(nv=4200, np=3000)
+dat = generate.data(nv=nv, np=np, corr_S1_W=corr_S1_W)
 for (j in 1:lens) {
   out.smooth = smooth.truth(dat=dat$unobs, h=h, s1star=s1[j])
   smooth.true.psi[1,j] = out.smooth$psi
@@ -221,7 +227,7 @@ for (j in 1:lens) {
 
 
 for (iter in 1:nrep) {
-  dat = generate.data(nv=nv, np=np)
+  dat = generate.data(nv=nv, np=np,  corr_S1_W= corr_S1_W)
   obs = dat$observed
   unobs = dat$unobserved
   for (j in 1:lens) {
