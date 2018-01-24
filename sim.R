@@ -1,4 +1,5 @@
 # Inculde drop outs? Probability of random dropout after the immune response is measured of 0.10*(1.75/2).
+# P1hat is smaller than 0? row 109
 # No nested case-control sampling design yet
 # 100% cross over rate for now
 # Add in W S1 for data generation
@@ -32,17 +33,17 @@ generate.data = function(nv, np,  corr_S1_W) {
   # post-treatment biomarker
   S1 = ws[,2]
    
-  # beta0 = -1.2
-  # beta1 = -1.8
-  # betaW = -0.5
-  # betaS0 = -0.1
-  # betaS1 = -1
+  beta0 = -1.2
+  beta1 = -1.8
+  betaW = -0.5
+  betaS0 = -0.1
+  betaS1 = -1
   prob0 = numeric(n)
   prob1 = numeric(n)
   for (i in 1:n) {
     vaccine_efficacy = 0.75 # 0.5 for later
-    prob0[i] =  0.04*(1.75/2) # prob0[i] = expit(beta0 + betaW*W[i] + betaS0*S1[i])
-    prob1[i] =  0.04*(1.75/2)*(1-vaccine_efficacy) # prob1[i] = expit(beta1 + betaW*W[i] + betaS1*S1[i])
+    prob0[i] = 0.04*(1.75/2)*expit(beta0 + betaW*W[i] + betaS0*S1[i])/0.20447 # use worframe for integral: Integrate (1-1/(1+e^x))*e^((-(x+1.446)^2)/2/0.31)/sqrt(2pi*0.31) dx from -inf to inf
+    prob1[i] = 0.04*(1.75/2)*(1-vaccine_efficacy)*expit(beta1 + betaW*W[i] + betaS1*S1[i])/0.133375 # use worframe for integral: Integrate (1-1/(1+e^x))*e^((-(x+2.415)^2)/2/1.75)/sqrt(2pi*1.75) dx from -inf to inf
   }
   Y0 = rbinom(n,1,prob0)
   Y1 = rbinom(n,1,prob1)
