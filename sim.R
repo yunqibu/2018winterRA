@@ -1,8 +1,13 @@
-# Inculde drop outs? Probability of random dropout after the immune response is measured of 0.10*(1.75/2).
-# P1hat is smaller than 0? row 109
+# P1hat<0:  rescaled smooth.S1 to 0~1, use binomial family
+#     Warnings: In eval(expr, envir, enclos) : non-integer #successes in a binomial glm!
+# Add in W S1 for data generation: extrapolated
+#     cant find closed form for the integal
+# sometimes P2hat is still 0, how to fix?
+
 # No nested case-control sampling design yet
 # 100% cross over rate for now
-# Add in W S1 for data generation
+# Later include dropouts: Probability of random dropout after the immune response is measured of 0.10*(1.75/2).
+
 
 #$ -S /usr/local/bin/Rscript
 setwd("~/Desktop/Peter Gilbert/simulation")
@@ -15,6 +20,7 @@ corr_S1_W = as.numeric(args[[4]])
 crossover_rate = as.numeric(args[[5]])
 nrep = as.numeric(args[[6]]) 
 library(SuperLearner)
+library(mvtnorm)
 
 generate.data = function(nv, np,  corr_S1_W) {
   logit = function(x) log(x/(1-x))
@@ -22,7 +28,6 @@ generate.data = function(nv, np,  corr_S1_W) {
   # treatment variable A
   A = c(rep(1,nv),rep(0,np)) # A = c(rep(1,n/2),rep(0,n/2))
   n = nv+np
-  library(mvtnorm)
   var_W = 1
   var_S1 = 1
   ws = rmvnorm(n, mean=rep(0.41,2),
@@ -32,18 +37,28 @@ generate.data = function(nv, np,  corr_S1_W) {
   W = ws[,1]
   # post-treatment biomarker
   S1 = ws[,2]
-   
-  beta0 = -1.2
-  beta1 = -1.8
+  vaccine_efficacy = 0.75 # 0.5 for later
   betaW = -0.5
   betaS0 = -0.1
   betaS1 = -1
+  ws.l = rmvnorm(10^6, mean=rep(0.41,2),
+               sigma=matrix(c( var_W ,corr_S1_W*sqrt(var_S1*var_W),
+                               corr_S1_W*sqrt(var_S1*var_W), var_S1),2,2)) # ws = rmvnorm(n, mean=rep(0.41,2),sigma=matrix(c(0.55^2,0.55^2*0.5,0.55^2*0.5,0.55^2),2,2))
+  # baseline covariate
+  W.l = ws.l[,1]
+  # post-treatment biomarker
+  S1.l = ws.l[,2]
+  p0fun = function(x) mean(expit(x + betaW*W.l + betaS0*S1.l)-0.04*(1.75/2))
+  beta0 = uniroot(p0fun,c(-100,100))$root
+  p1fun = function(x) mean(expit(x + betaW*W.l + betaS1*S1.l)-0.04*(1.75/2)*(1-vaccine_efficacy))
+  beta1 = uniroot(p1fun,c(-100,100))$root
+  # beta0 = -1.2
+  # beta1 = -1.8
   prob0 = numeric(n)
   prob1 = numeric(n)
   for (i in 1:n) {
-    vaccine_efficacy = 0.75 # 0.5 for later
-    prob0[i] = 0.04*(1.75/2)*expit(beta0 + betaW*W[i] + betaS0*S1[i])/0.20447 # use worframe for integral: Integrate (1-1/(1+e^x))*e^((-(x+1.446)^2)/2/0.31)/sqrt(2pi*0.31) dx from -inf to inf
-    prob1[i] = 0.04*(1.75/2)*(1-vaccine_efficacy)*expit(beta1 + betaW*W[i] + betaS1*S1[i])/0.133375 # use worframe for integral: Integrate (1-1/(1+e^x))*e^((-(x+2.415)^2)/2/1.75)/sqrt(2pi*1.75) dx from -inf to inf
+    prob0[i] = expit(beta0 + betaW*W[i] + betaS0*S1[i]) 
+    prob1[i] = expit(beta1 + betaW*W[i] + betaS1*S1[i]) 
   }
   Y0 = rbinom(n,1,prob0)
   Y1 = rbinom(n,1,prob1)
@@ -53,7 +68,7 @@ generate.data = function(nv, np,  corr_S1_W) {
   unobserved = list(S1=S1,Y0=Y0,Y1=Y1)
   return(list(observed=observed, unobserved=unobserved))
 }
-
+DATA=NULL
 estimate = function(dat, h, s1star) {
   A = dat$A
   W = dat$W
@@ -67,30 +82,33 @@ estimate = function(dat, h, s1star) {
   ############ initial estimate ############
   SL.library <- c("SL.glm", "SL.glm.interaction", "SL.step", "SL.nnet", "SL.mean")
   smooth.S1 = Kh(S1-s1star)
+  min.smooth.S1 = min(smooth.S1, na.rm=T)
+  max.smooth.S1 = max(smooth.S1, na.rm=T)
+  scaled.smooth.S1 = (smooth.S1-min.smooth.S1)/(max.smooth.S1-min.smooth.S1)
   P1hat = 0
   P2hat = 0
   P3hat = 0
   
   #S1|A=1,W
-  fit1 <- SuperLearner(Y = smooth.S1[A==1], X = data.frame(W=W[A==1]), family = gaussian(), 
-                       SL.library = SL.library, method = "method.NNLS")
+  fit1 <- SuperLearner(Y = scaled.smooth.S1[A==1], X = data.frame(W=W[A==1]), family = binomial(), 
+                       SL.library = SL.library, method = "method.NNLS") # Warnings: In eval(expr, envir, enclos) : non-integer #successes in a binomial glm!
   P1hat = predict(fit1, data.frame(W))$pred
-  
+  P1hat = P1hat*(max.smooth.S1-min.smooth.S1)+min.smooth.S1
   
   #Y=1,S1|A=1,W
-  fit1 <- SuperLearner(Y = smooth.S1[A==1 & Y==1], X = data.frame(W=W[A==1 & Y==1]), family = gaussian(), 
+  fit1 <- SuperLearner(Y = scaled.smooth.S1[A==1 & Y==1], X = data.frame(W=W[A==1 & Y==1]), family = binomial(), 
                        SL.library = SL.library, method = "method.NNLS")
   fit2 <- SuperLearner(Y = Y[A==1], X = data.frame(W=W[A==1]), family = binomial(), 
                        SL.library = SL.library, method = "method.NNLS")
-  P2hat = predict(fit1, data.frame(W=W))$pred * predict(fit2, data.frame(W=W))$pred
+  P2hat = (predict(fit1, data.frame(W=W))$pred*(max.smooth.S1-min.smooth.S1)+min.smooth.S1) * predict(fit2, data.frame(W=W))$pred
   
   
   #Y=0,S0^c|A=0,W
-  fit1 <- SuperLearner(Y = smooth.S1[A==0 & Y==0], X = data.frame(W=W[A==0 & Y==0]), family = gaussian(), 
-                       SL.library = SL.library, method = "method.NNLS")
+  fit1 <- SuperLearner(Y = scaled.smooth.S1[A==0 & Y==0], X = data.frame(W=W[A==0 & Y==0]), family = binomial(), 
+                       SL.library = SL.library, method = "method.NNLS") # rescale smooth.S1 to range 0,1, switch gaussian to binomial
   fit2 <- SuperLearner(Y = Y[A==0], X = data.frame(W=W[A==0]), family = binomial(), 
                        SL.library = SL.library, method = "method.NNLS")
-  P3hat = predict(fit1, data.frame(W=W))$pred * (1-predict(fit2, data.frame(W=W))$pred)
+  P3hat = (predict(fit1, data.frame(W=W))$pred*(max.smooth.S1-min.smooth.S1)+min.smooth.S1) * (1-predict(fit2, data.frame(W=W))$pred) 
   
   
   #A=1|W
@@ -102,15 +120,14 @@ estimate = function(dat, h, s1star) {
   
   #missing for A=0 & Y=1
   smooth.S1.nomissing = ifelse(is.na(smooth.S1), 100, smooth.S1)
-  P1hat = ifelse(P1hat<=0,  10^-100, P1hat) #???
   fit1 = glm( smooth.S1.nomissing ~ 1, weights = (A==1)/Ahat, offset = log(P1hat), family = poisson())
   P1star =  fit1$fitted.values
-  
-  P2hat = ifelse(P2hat<=0, 10^-100, P2hat) #???
+  DATA=dat
+  save(DATA, file=paste("iter",iter,"j",j,".Rda",sep=""))
+  print(table(Y==1))
   fit2 = glm( (Y==1)*smooth.S1.nomissing ~ 1, weights = (A==1)/Ahat, offset = log(P2hat), family=poisson())
   P2star = fit2$fitted.values
   
-  P3hat = ifelse(P3hat<=0,  10^-100, P3hat) #???
   fit3 = glm( (Y==0)*smooth.S1.nomissing ~ 1, weights = (A==0)/(1-Ahat), offset = log(P3hat), family=poisson())
   P3star = fit3$fitted.values
   
@@ -139,13 +156,27 @@ estimate = function(dat, h, s1star) {
 }
 
 truth = function(s1star) {
-  # logit = function(x) log(x/(1-x))
-  # expit = function(x) exp(x)/(1+exp(x))
+  logit = function(x) log(x/(1-x))
+  expit = function(x) exp(x)/(1+exp(x))
+  var_W = 1
+  var_S1 = 1
+  corr_S1_W = corr_S1_W
+  vaccine_efficacy = 0.75 
+  b1 = -0.5
+  b2 = -1
+  b3 = -0.1
+  ws.l = rmvnorm(10^6, mean=rep(0.41,2),
+                 sigma=matrix(c( var_W ,corr_S1_W*sqrt(var_S1*var_W),
+                                 corr_S1_W*sqrt(var_S1*var_W), var_S1),2,2)) # ws = rmvnorm(n, mean=rep(0.41,2),sigma=matrix(c(0.55^2,0.55^2*0.5,0.55^2*0.5,0.55^2),2,2))
+  W.l = ws.l[,1]
+  S1.l = ws.l[,2]
+  p0fun = function(x) mean(expit(x + b1*W.l + b3*S1.l)-0.04*(1.75/2))
+  b00 = uniroot(p0fun,c(-100,100))$root
+  p1fun = function(x) mean(expit(x + b1*W.l + b2*S1.l)-0.04*(1.75/2)*(1-vaccine_efficacy))
+  b01 = uniroot(p1fun,c(-100,100))$root
   # b00 = -1.2
   # b01 = -1.8
-  # b1 = -0.5
-  # b2 = -1
-  # b3 = -0.1
+  
   #W, S1
   mu = rep(0.41,2)
   var_W = 1
@@ -156,12 +187,12 @@ truth = function(s1star) {
   
   psi1 = dnorm(s1star,mean=mu[2],sd=sqrt(sigma[2,2]))
   #conditional distribution of W|S1
-  # muW = mu[1]+sigma[1,2]/sigma[2,2]*(s1star - mu[2])
-  # sigW = sigma[1,1] - sigma[1,2]^2/sigma[2,2]
-  # W = rnorm(1000000, mean=muW, sd=sqrt(sigW))
-  vaccine_efficacy = 0.75 # 0.5 for later
-  psi2 = 0.04*(1.75/2)*(1-vaccine_efficacy) * psi1 # psi2 = mean(expit(b01 + b1*W + b2*s1star)) * psi1
-  psi3 = (1 - 0.04*(1.75/2)) * psi1 # psi3 = (1 - mean(expit(b00 + b1*W + b3*s1star))) * psi1
+  muW = mu[1]+sigma[1,2]/sigma[2,2]*(s1star - mu[2])
+  sigW = sigma[1,1] - sigma[1,2]^2/sigma[2,2]
+  W = rnorm(10^6, mean=muW, sd=sqrt(sigW))
+  
+  psi2 = mean(expit(b01 + b1*W + b2*s1star)) * psi1
+  psi3 = (1 - mean(expit(b00 + b1*W + b3*s1star))) * psi1
   psi = log(psi2/(psi1-psi3))
   return(list(psi=psi, psi1=psi1, psi2=psi2, psi3=psi3))
 }
@@ -225,20 +256,19 @@ for (j in 1:lens) {
   smooth.true.psi3[1,j] = out.smooth$psi3
 }
 
-
-
 for (iter in 1:nrep) {
   dat = generate.data(nv=nv, np=np,  corr_S1_W= corr_S1_W)
   obs = dat$observed
   unobs = dat$unobserved
   for (j in 1:lens) {
-    
+    print(c(iter,j))
     out.tmle = estimate(dat=obs, h=h, s1star=s1[j])
+
     TMLE.psi[iter,j] = out.tmle$psi
     TMLE.psi1[iter,j] = out.tmle$psi1
     TMLE.psi2[iter,j] = out.tmle$psi2
     TMLE.psi3[iter,j] = out.tmle$psi3
-    
+
     psi.sd[iter,j] = out.tmle$sd
     psi.sd1[iter,j] = out.tmle$sd1
     psi.sd2[iter,j] = out.tmle$sd2
