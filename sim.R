@@ -1,10 +1,5 @@
 ## !!!! REMOVE parallel = TRUE before cluster
 # different smooth.S1 for P1hat, P2hat, P3hat? P1star P2star P3star? Innfuluence function D1 D2 D3?
-# P1hat<0:  rescaled smooth.S1 to 0~1, use binomial family
-#     Warnings: In eval(expr, envir, enclos) : non-integer #successes in a binomial glm!
-# Add in W S1 for data generation: extrapolated
-#     cant find closed form for the integal
-# sometimes P2hat is still 0, how to fix?
 
 # No nested case-control sampling design yet
 # 100% cross over rate for now
