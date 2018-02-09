@@ -1,3 +1,5 @@
+## !!!! REMOVE parallel = TRUE before cluster
+# different smooth.S1 for P1hat, P2hat, P3hat? P1star P2star P3star? Innfuluence function D1 D2 D3?
 # P1hat<0:  rescaled smooth.S1 to 0~1, use binomial family
 #     Warnings: In eval(expr, envir, enclos) : non-integer #successes in a binomial glm!
 # Add in W S1 for data generation: extrapolated
@@ -7,6 +9,7 @@
 # No nested case-control sampling design yet
 # 100% cross over rate for now
 # Later include dropouts: Probability of random dropout after the immune response is measured of 0.10*(1.75/2).
+
 
 
 #$ -S /usr/local/bin/Rscript
@@ -68,8 +71,9 @@ generate.data = function(nv, np,  corr_S1_W) {
   unobserved = list(S1=S1,Y0=Y0,Y1=Y1)
   return(list(observed=observed, unobserved=unobserved))
 }
+
 DATA=NULL
-estimate = function(dat, h, s1star) {
+estimate = function(dat, h=0.5, s1star) {
   A = dat$A
   W = dat$W
   S1 = dat$S1
@@ -89,13 +93,64 @@ estimate = function(dat, h, s1star) {
   P2hat = 0
   P3hat = 0
   
-  #S1|A=1,W
+  #S1|A=1,W 
+  out=NULL
+  hseq =  seq(0.1,1,0.1)
+  for (h in hseq){
+    print(h)
+    Kh = function(x) exp(-(x/h)^2/2)/sqrt(2*pi)/h
+    smooth.S1 = Kh(S1-s1star)
+    min.smooth.S1 = min(smooth.S1, na.rm=T)
+    max.smooth.S1 = max(smooth.S1, na.rm=T)
+    scaled.smooth.S1 = (smooth.S1-min.smooth.S1)/(max.smooth.S1-min.smooth.S1)
+    fit1 <- CV.SuperLearner(Y = scaled.smooth.S1[A==1], X = data.frame(W=W[A==1]), V=10, family = binomial(), 
+                            SL.library = SL.library, method = "method.NNLS") 
+    P1hat = fit1$SL.predict
+    P1hat = P1hat*(max.smooth.S1-min.smooth.S1)+min.smooth.S1
+    out=c(out,mean(-log(P1hat)))
+    print(out)
+  }
+  h=hseq[which.min(out)]
+  print(h)
+  h1=h
+  Kh = function(x) exp(-(x/h)^2/2)/sqrt(2*pi)/h
+  smooth.S1 = Kh(S1-s1star)
+  smooth.S1.1 = smooth.S1
+  min.smooth.S1 = min(smooth.S1, na.rm=T)
+  max.smooth.S1 = max(smooth.S1, na.rm=T)
+  scaled.smooth.S1 = (smooth.S1-min.smooth.S1)/(max.smooth.S1-min.smooth.S1)
   fit1 <- SuperLearner(Y = scaled.smooth.S1[A==1], X = data.frame(W=W[A==1]), family = binomial(), 
-                       SL.library = SL.library, method = "method.NNLS") # Warnings: In eval(expr, envir, enclos) : non-integer #successes in a binomial glm!
+                       SL.library = SL.library, method = "method.NNLS") 
+  print(fit1)
   P1hat = predict(fit1, data.frame(W))$pred
   P1hat = P1hat*(max.smooth.S1-min.smooth.S1)+min.smooth.S1
   
   #Y=1,S1|A=1,W
+  out=NULL
+  hseq = c(seq(0.1,1,0.1))
+  for (h in hseq){
+    print(h)
+    Kh = function(x) exp(-(x/h)^2/2)/sqrt(2*pi)/h
+    smooth.S1 = Kh(S1-s1star)
+    min.smooth.S1 = min(smooth.S1, na.rm=T)
+    max.smooth.S1 = max(smooth.S1, na.rm=T)
+    scaled.smooth.S1 = (smooth.S1-min.smooth.S1)/(max.smooth.S1-min.smooth.S1)
+    fit1 <- CV.SuperLearner(Y = scaled.smooth.S1[A==1 & Y==1], X = data.frame(W=W[A==1 & Y==1]), family = binomial(), 
+                            SL.library = SL.library, method = "method.NNLS") 
+    fit2 <- SuperLearner(Y = Y[A==1], X = data.frame(W=W[A==1]), family = binomial(), 
+                         SL.library = SL.library, method = "method.NNLS")
+    P2hat = (fit1$SL.predict*(max.smooth.S1-min.smooth.S1)+min.smooth.S1)*predict(fit2,data.frame(W=W[A==1 & Y==1]))$pred
+    out=c(out,mean(-log(P2hat)))
+    print(out)
+  }
+  h=hseq[which.min(out)]
+  h2=h
+  Kh = function(x) exp(-(x/h)^2/2)/sqrt(2*pi)/h
+  smooth.S1 = Kh(S1-s1star)
+  smooth.S1.2 = smooth.S1
+  min.smooth.S1 = min(smooth.S1, na.rm=T)
+  max.smooth.S1 = max(smooth.S1, na.rm=T)
+  scaled.smooth.S1 = (smooth.S1-min.smooth.S1)/(max.smooth.S1-min.smooth.S1)
   fit1 <- SuperLearner(Y = scaled.smooth.S1[A==1 & Y==1], X = data.frame(W=W[A==1 & Y==1]), family = binomial(), 
                        SL.library = SL.library, method = "method.NNLS")
   fit2 <- SuperLearner(Y = Y[A==1], X = data.frame(W=W[A==1]), family = binomial(), 
@@ -104,6 +159,32 @@ estimate = function(dat, h, s1star) {
   
   
   #Y=0,S0^c|A=0,W
+  out=NULL
+  hseq = c(seq(0.1,1,0.1))
+  for (h in hseq){
+    print(h)
+    Kh = function(x) exp(-(x/h)^2/2)/sqrt(2*pi)/h
+    smooth.S1 = Kh(S1-s1star)
+    min.smooth.S1 = min(smooth.S1, na.rm=T)
+    max.smooth.S1 = max(smooth.S1, na.rm=T)
+    scaled.smooth.S1 = (smooth.S1-min.smooth.S1)/(max.smooth.S1-min.smooth.S1)
+    fit1 <- CV.SuperLearner(Y = scaled.smooth.S1[A==0 & Y==0], X = data.frame(W=W[A==0 & Y==0]), family = binomial(), 
+                            SL.library = SL.library, method = "method.NNLS") 
+    fit2 <- SuperLearner(Y = Y[A==0], X = data.frame(W=W[A==0]), family = binomial(), 
+                         SL.library = SL.library, method = "method.NNLS")
+    P3hat = (fit1$SL.predict*(max.smooth.S1-min.smooth.S1)+min.smooth.S1)*(1-predict(fit2,data.frame(W=W[A==0 & Y==0]))$pred) 
+    
+    out=c(out,mean(-log(P3hat)))
+    print(out)
+  }
+  h=hseq[which.min(out)]
+  h3=h
+  Kh = function(x) exp(-(x/h)^2/2)/sqrt(2*pi)/h
+  smooth.S1 = Kh(S1-s1star)
+  smooth.S1.3= smooth.S1
+  min.smooth.S1 = min(smooth.S1, na.rm=T)
+  max.smooth.S1 = max(smooth.S1, na.rm=T)
+  scaled.smooth.S1 = (smooth.S1-min.smooth.S1)/(max.smooth.S1-min.smooth.S1)
   fit1 <- SuperLearner(Y = scaled.smooth.S1[A==0 & Y==0], X = data.frame(W=W[A==0 & Y==0]), family = binomial(), 
                        SL.library = SL.library, method = "method.NNLS") # rescale smooth.S1 to range 0,1, switch gaussian to binomial
   fit2 <- SuperLearner(Y = Y[A==0], X = data.frame(W=W[A==0]), family = binomial(), 
@@ -119,15 +200,26 @@ estimate = function(dat, h, s1star) {
   #################### fluctuation #####################
   
   #missing for A=0 & Y=1
+  h=h1
+  smooth.S1 = smooth.S1.1
   smooth.S1.nomissing = ifelse(is.na(smooth.S1), 100, smooth.S1)
+  smooth.S1.nomissing.1 = smooth.S1.nomissing
   fit1 = glm( smooth.S1.nomissing ~ 1, weights = (A==1)/Ahat, offset = log(P1hat), family = poisson())
   P1star =  fit1$fitted.values
   DATA=dat
   save(DATA, file=paste("iter",iter,"j",j,".Rda",sep=""))
-  print(table(Y==1))
+  
+  h=h2
+  smooth.S1 = smooth.S1.2
+  smooth.S1.nomissing = ifelse(is.na(smooth.S1), 100, smooth.S1)
+  smooth.S1.nomissing.2 = smooth.S1.nomissing
   fit2 = glm( (Y==1)*smooth.S1.nomissing ~ 1, weights = (A==1)/Ahat, offset = log(P2hat), family=poisson())
   P2star = fit2$fitted.values
   
+  h=h3
+  smooth.S1 = smooth.S1.3
+  smooth.S1.nomissing = ifelse(is.na(smooth.S1), 100, smooth.S1)
+  smooth.S1.nomissing.3 = smooth.S1.nomissing
   fit3 = glm( (Y==0)*smooth.S1.nomissing ~ 1, weights = (A==0)/(1-Ahat), offset = log(P3hat), family=poisson())
   P3star = fit3$fitted.values
   
@@ -139,9 +231,9 @@ estimate = function(dat, h, s1star) {
   init.psi = log(mean(P2hat)/(mean(P1hat)-mean(P3hat)))
   
   ################### influence function/gradient ###############
-  D1 = (A==1)/Ahat*(smooth.S1.nomissing - P1star) + P1star - psi1
-  D2 = (A==1)/Ahat*((Y==1)*smooth.S1.nomissing - P2star) + P2star - psi2
-  D3 = (A==0)/(1-Ahat)*((Y==0)*smooth.S1.nomissing - P3star) + P3star - psi3
+  D1 = (A==1)/Ahat*(smooth.S1.nomissing.1 - P1star) + P1star - psi1
+  D2 = (A==1)/Ahat*((Y==1)*smooth.S1.nomissing.2 - P2star) + P2star - psi2
+  D3 = (A==0)/(1-Ahat)*((Y==0)*smooth.S1.nomissing.3 - P3star) + P3star - psi3
   g1 = -1/(psi1-psi3) # for target parameter log(RR)
   g2 = 1/psi2
   g3 = 1/(psi1-psi3)
@@ -216,7 +308,7 @@ smooth.truth = function(dat, h, s1star) {
 ############################################################
 ############################################################
 
-s1 = seq(0,1,by=0.1)
+s1 = seq(0,1,by=0.5)
 lens = length(s1)
 true.psi = numeric(lens)
 true.psi1 = numeric(lens)
@@ -248,6 +340,8 @@ psi.sd2 = matrix(NA, nrep, lens)
 psi.sd3 = matrix(NA, nrep, lens)
 
 dat = generate.data(nv=nv, np=np, corr_S1_W=corr_S1_W)
+
+# smooth true for a given h
 for (j in 1:lens) {
   out.smooth = smooth.truth(dat=dat$unobs, h=h, s1star=s1[j])
   smooth.true.psi[1,j] = out.smooth$psi
@@ -263,7 +357,7 @@ for (iter in 1:nrep) {
   for (j in 1:lens) {
     print(c(iter,j))
     out.tmle = estimate(dat=obs, h=h, s1star=s1[j])
-
+    print("done iter")
     TMLE.psi[iter,j] = out.tmle$psi
     TMLE.psi1[iter,j] = out.tmle$psi1
     TMLE.psi2[iter,j] = out.tmle$psi2
