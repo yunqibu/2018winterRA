@@ -2,11 +2,25 @@
 # different smooth.S1 for P1hat, P2hat, P3hat? P1star P2star P3star? Innfuluence function D1 D2 D3?
 
 # No nested case-control sampling design yet
+ 
 # 100% cross over rate for now
 # Later include dropouts: Probability of random dropout after the immune response is measured of 0.10*(1.75/2).
 
+delta~W A Y stratify(A=0, A=1, two regressions)
+A=1 Y=1 all1
+A=1 Y=0 regress onn W
+A=0 Y=1 delta=1
+A=0 Y=0 regress on W
 
+P(delta=1|WAY)
+delta/P(delta=1|WAY) is the weight
+S A=1,Y=1(missing) : A=1,Y=0 = 1:K , other A=1,Y=0 set missing
+S A=0,Y=0 25% or 50% with S
+S A=0, Y=1 missing
 
+missing onnly on S for A=1 suset missinnng
+
+SL.glm() check if weights are used
 #$ -S /usr/local/bin/Rscript
 setwd("~/Desktop/Peter Gilbert/simulation")
 
@@ -219,14 +233,14 @@ estimate = function(dat, h=0.5, s1star) {
   P3star = fit3$fitted.values
   
   ################### estimation #######################
-  psi1 = mean(P1star)
+  psi1 = mean(P1star#*weight)
   psi2 = mean(P2star)
   psi3 = mean(P3star)
   psi = log(psi2/(psi1-psi3))
-  init.psi = log(mean(P2hat)/(mean(P1hat)-mean(P3hat)))
+  init.psi = log(mean(P2hat#*weight)/(mean(P1hat)-mean(P3hat)))
   
   ################### influence function/gradient ###############
-  D1 = (A==1)/Ahat*(smooth.S1.nomissing.1 - P1star) + P1star - psi1
+  D1 = (A==1)/Ahat*(smooth.S1.nomissing.1 - P1star) + P1star - psi1 # times the weight
   D2 = (A==1)/Ahat*((Y==1)*smooth.S1.nomissing.2 - P2star) + P2star - psi2
   D3 = (A==0)/(1-Ahat)*((Y==0)*smooth.S1.nomissing.3 - P3star) + P3star - psi3
   g1 = -1/(psi1-psi3) # for target parameter log(RR)
@@ -234,7 +248,7 @@ estimate = function(dat, h=0.5, s1star) {
   g3 = 1/(psi1-psi3)
   D = g1 * D1 + g2 * D2 + g3 * D3
   
-  sd = sqrt(mean(D^2)/n)
+  sd = sqrt(mean(D^2)/n)# mean over entire n, not just onn zero
   sd1 = sqrt(mean(D1^2)/n)
   sd2 = sqrt(mean(D2^2)/n)
   sd3 = sqrt(mean(D3^2)/n)
