@@ -1,3 +1,4 @@
+#$ -S /usr/local/bin/Rscript
 ## !!!! REMOVE parallel = TRUE before cluster
 # different smooth.S1 for P1hat, P2hat, P3hat? P1star P2star P3star? Innfuluence function D1 D2 D3?
 
@@ -6,22 +7,22 @@
 # 100% cross over rate for now
 # Later include dropouts: Probability of random dropout after the immune response is measured of 0.10*(1.75/2).
 
-delta~W A Y stratify(A=0, A=1, two regressions)
-A=1 Y=1 all1
-A=1 Y=0 regress onn W
-A=0 Y=1 delta=1
-A=0 Y=0 regress on W
+# P(delta=1|W,A,Y)
+# delta~W A Y stratify(A=0, A=1, Y=0, Y=1)
+# A=1 Y=1 all 1
+# A=1 Y=0 regress on W
+# A=0 Y=1 delta=1
+# A=0 Y=0 regress on W
 
-P(delta=1|WAY)
-delta/P(delta=1|WAY) is the weight
-S A=1,Y=1(missing) : A=1,Y=0 = 1:K , other A=1,Y=0 set missing
-S A=0,Y=0 25% or 50% with S
-S A=0, Y=1 missing
 
-missing onnly on S for A=1 suset missinnng
+# delta/P(delta=1|WAY) is the weight
+# S A=1,Y=1(missing) : A=1,Y=0 = 1:K , other A=1,Y=0 set missing
+# S A=0,Y=0 25% or 50% with S
+# S A=0, Y=1 missing
+# missing only on S for A=1 suset missinnng
 
-SL.glm() check if weights are used
-#$ -S /usr/local/bin/Rscript
+# SL.glm() check if weights are used
+
 setwd("~/Desktop/Peter Gilbert/simulation")
 
 args = commandArgs(TRUE)
