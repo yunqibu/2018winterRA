@@ -1,10 +1,10 @@
 #$ -S /usr/local/bin/Rscript
-setwd("~/Desktop/Peter Gilbert/simulation")
+
 args = commandArgs(TRUE)
 corr_S1_W = as.numeric(args[[1]])
 crossover_rate = as.numeric(args[[2]])
 nrep = as.numeric(args[[3]]) 
-
+# setwd("~/Desktop/Peter Gilbert/simulation")
 library(SuperLearner)
 library(mvtnorm)
 
