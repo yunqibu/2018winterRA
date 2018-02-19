@@ -1,31 +1,24 @@
 #$ -S /usr/local/bin/Rscript
-## !!!! REMOVE parallel = TRUE before cluster
-# different smooth.S1 for P1hat, P2hat, P3hat? P1star P2star P3star? Innfuluence function D1 D2 D3?
-
-# No nested case-control sampling design yet
- 
-# 100% cross over rate for now
-# Later include dropouts: Probability of random dropout after the immune response is measured of 0.10*(1.75/2).
-
-# 219, 232, 248 254, 257 row non weights
-# 265 init.psi is NaN
-#250 255 258 row need weight?
-# 270 271 272 smooth.S1.nomissing need times weight?
-
-
-# SL.glm() check if weights are used
-
 setwd("~/Desktop/Peter Gilbert/simulation")
-
 args = commandArgs(TRUE)
-h = as.numeric(args[[1]]) #.1~.5 bandwith
-nv = as.numeric(args[[2]]) # trt 4200 ctl 3000
-np = as.numeric(args[[3]])
-corr_S1_W = as.numeric(args[[4]])
-crossover_rate = as.numeric(args[[5]])
-nrep = as.numeric(args[[6]]) 
+corr_S1_W = as.numeric(args[[1]])
+crossover_rate = as.numeric(args[[2]])
+nrep = as.numeric(args[[3]]) 
+
 library(SuperLearner)
 library(mvtnorm)
+
+# Later include dropouts: Probability of random dropout after the immune response is measured of 0.10*(1.75/2).
+
+# can't change 100 to Inf, use 10^10 instead
+
+# h = as.numeric(args[[1]]) #.1~.5 bandwith
+h = 0.1
+# nv = as.numeric(args[[2]]) # trt 4200 ctl 3000
+nv = 4200
+# np = as.numeric(args[[3]])
+np = 3000
+
 
 generate.data = function(nv, np,  corr_S1_W) {
   logit = function(x) log(x/(1-x))
@@ -48,7 +41,7 @@ generate.data = function(nv, np,  corr_S1_W) {
   betaS1 = -1
   ws.l = rmvnorm(10^6, mean=rep(0.41,2),
                sigma=matrix(c( var_W ,corr_S1_W*sqrt(var_S1*var_W),
-                               corr_S1_W*sqrt(var_S1*var_W), var_S1),2,2)) # ws = rmvnorm(n, mean=rep(0.41,2),sigma=matrix(c(0.55^2,0.55^2*0.5,0.55^2*0.5,0.55^2),2,2))
+                               corr_S1_W*sqrt(var_S1*var_W), var_S1),2,2)) 
   # baseline covariate
   W.l = ws.l[,1]
   # post-treatment biomarker
@@ -70,8 +63,8 @@ generate.data = function(nv, np,  corr_S1_W) {
   Y = A*Y1 + (1-A)*Y0 
   # S A=0, Y=1 missing
   S = ifelse(A==1, S1, ifelse(Y==0, S1, NA)) 
-  # S A=1,Y=1 : A=1,Y=0 = 1:K , other A=1,Y=0 set missing, k = 40 first
-  k=40
+  # S A=1,Y=1 : A=1,Y=0 = 1:K , other A=1,Y=0 set missing, k = 4 first
+  k=4
   temp = table(A=A, Y=Y)
   numA1Y1 = temp[2,2]
   numA1Y0 = temp[2,1]
@@ -80,7 +73,7 @@ generate.data = function(nv, np,  corr_S1_W) {
   S.ind = sample(1:numA1Y0, numA1Y0-numA1Y0S, replace = FALSE)
   S[A==1&Y==0][S.ind] <- NA
 
-  # S A=0,Y=0 25% or 50% with S
+  # S A=0,Y=0 25% or 50% with S 75%
   S.ind = sample(1:numA0Y0, floor((1-crossover_rate)*numA0Y0), replace = FALSE)
   S[A==0 & Y==0][S.ind] <- NA
   
@@ -102,8 +95,8 @@ generate.data = function(nv, np,  corr_S1_W) {
   return(list(observed=observed, unobserved=unobserved))
 }
 
-DATA=NULL
-estimate = function(dat, h=0.5, s1star) {
+# DATA=NULL
+estimate = function(dat, h=0.1, s1star) {
   A = dat$A
   W = dat$W
   S1 = dat$S1
@@ -126,7 +119,7 @@ estimate = function(dat, h=0.5, s1star) {
   
   #S1|A=1,W 
   out=NULL
-  hseq =  seq(0.1,1,0.4)
+  hseq =  seq(0.1,1,0.1)
   for (h in hseq){
     print(h)
     Kh = function(x) exp(-(x/h)^2/2)/sqrt(2*pi)/h
@@ -219,7 +212,6 @@ estimate = function(dat, h=0.5, s1star) {
                        SL.library = SL.library, method = "method.NNLS")
   fit2 <- SuperLearner(Y = Y[A==1],
                        X = data.frame(W=W[A==1]),
-                       # obsWeights = Pi[A==1],
                        family = binomial(),
                        SL.library = SL.library, method = "method.NNLS")
   P2hat = (predict(fit1, data.frame(W=W))$pred*(max.smooth.S1-min.smooth.S1)+min.smooth.S1) * predict(fit2, data.frame(W=W))$pred
@@ -244,18 +236,17 @@ estimate = function(dat, h=0.5, s1star) {
   #################### fluctuation #####################
   
   #missing for A=0 & Y=1
-  smooth.S1.nomissing = ifelse(is.na(smooth.S1), 100, smooth.S1)
-  smooth.S1.nomissing.1 = smooth.S1.nomissing
+  smooth.S1.nomissing = ifelse(is.na(smooth.S1), 100, smooth.S1) # change 100 to Inf, add flag to check weight>0 non S1 missing 
   
-  fit1 = glm( smooth.S1.nomissing ~ 1, weights = (A==1)/Ahat, offset = log(P1hat), family = poisson())
+  fit1 = glm( smooth.S1.nomissing ~ 1, weights = Pi*(A==1)/Ahat, offset = log(P1hat), family = poisson()) # Add in our weights
   P1star =  fit1$fitted.values
-  DATA=dat
-  save(DATA, file=paste("iter",iter,"j",j,".Rda",sep=""))
+  #DATA=dat
+  #save(DATA, file=paste("iter",iter,"j",j,".Rda",sep=""))
   
-  fit2 = glm( (Y==1)*smooth.S1.nomissing ~ 1, weights = (A==1)/Ahat, offset = log(P2hat), family=poisson())
+  fit2 = glm( (Y==1)*smooth.S1.nomissing ~ 1, weights = Pi*(A==1)/Ahat, offset = log(P2hat), family=poisson())
   P2star = fit2$fitted.values
   
-  fit3 = glm( (Y==0)*smooth.S1.nomissing ~ 1, weights = (A==0)/(1-Ahat), offset = log(P3hat), family=poisson())
+  fit3 = glm( (Y==0)*smooth.S1.nomissing ~ 1, weights = Pi*(A==0)/(1-Ahat), offset = log(P3hat), family=poisson())
   P3star = fit3$fitted.values
   
   ################### estimation #######################
@@ -263,13 +254,13 @@ estimate = function(dat, h=0.5, s1star) {
   psi2 = mean(P2star*Pi)
   psi3 = mean(P3star*Pi)
   psi = log(psi2/(psi1-psi3))
-  init.psi = log(mean(P2hat*Pi)/(mean(P1hat*Pi)-mean(P3hat*Pi)))
+  init.psi = log(mean(P2hat*Pi)/(mean(P1hat*Pi)-mean(P3hat*Pi))) # not used, if engative return NA as a warning
   # log(mean(P2hat)/(mean(P1hat)-mean(P3hat)))
   
   ################### influence function/gradient ###############
-  D1 = (A==1)/Ahat*(smooth.S1.nomissing - P1star*Pi) + P1star*Pi - psi1 # times the weight
-  D2 = (A==1)/Ahat*((Y==1)*smooth.S1.nomissing - P2star*Pi) + P2star*Pi - psi2
-  D3 = (A==0)/(1-Ahat)*((Y==0)*smooth.S1.nomissing - P3star*Pi) + P3star*Pi - psi3
+  D1 = Pi*((A==1)/Ahat*(smooth.S1.nomissing - P1star) + P1star - psi1) # times the weight o the entire thing not seperate
+  D2 = Pi*((A==1)/Ahat*((Y==1)*smooth.S1.nomissing - P2star) + P2star - psi2)
+  D3 = Pi*((A==0)/(1-Ahat)*((Y==0)*smooth.S1.nomissing - P3star) + P3star - psi3)
   g1 = -1/(psi1-psi3) # for target parameter log(RR)
   g2 = 1/psi2
   g3 = 1/(psi1-psi3)
@@ -280,7 +271,7 @@ estimate = function(dat, h=0.5, s1star) {
   sd2 = sqrt(mean(D2^2)/n)
   sd3 = sqrt(mean(D3^2)/n)
   
-  return(list(psi=psi,sd=sd,psi1=psi1,psi2=psi2,psi3=psi3,sd1=sd1,sd2=sd2,sd3=sd3,init.psi=init.psi))
+  return(list(psi=psi,sd=sd,psi1=psi1,psi2=psi2,psi3=psi3,sd1=sd1,sd2=sd2,sd3=sd3,init.psi=init.psi,h=h))
 }
 
 truth = function(s1star) {
@@ -365,6 +356,8 @@ smooth.true.psi3 = matrix(NA, 1, lens)
 
 init.psi = matrix(NA, nrep, lens)
 
+h.cv = matrix(NA, nrep, lens)
+
 TMLE.psi = matrix(NA, nrep, lens)
 TMLE.psi1 = matrix(NA, nrep, lens)
 TMLE.psi2 = matrix(NA, nrep, lens)
@@ -377,17 +370,8 @@ psi.sd3 = matrix(NA, nrep, lens)
 
 dat = generate.data(nv=nv, np=np, corr_S1_W=corr_S1_W)
 
-# smooth true for a given h
-for (j in 1:lens) {
-  out.smooth = smooth.truth(dat=dat$unobs, h=h, s1star=s1[j])
-  smooth.true.psi[1,j] = out.smooth$psi
-  smooth.true.psi1[1,j] = out.smooth$psi1
-  smooth.true.psi2[1,j] = out.smooth$psi2
-  smooth.true.psi3[1,j] = out.smooth$psi3
-}
-
 for (iter in 1:nrep) {
-  dat = generate.data(nv=nv, np=np,  corr_S1_W= corr_S1_W)
+  dat = generate.data(nv=nv, np=np,  corr_S1_W = corr_S1_W)
   obs = dat$observed
   unobs = dat$unobserved
   for (j in 1:lens) {
@@ -405,7 +389,18 @@ for (iter in 1:nrep) {
     psi.sd3[iter,j] = out.tmle$sd3
     
     init.psi[iter,j] = out.tmle$init.psi
+    
+    h.cv[iter,j] = out.tmle$h
   }
+}
+
+# smooth true for a given h
+for (j in 1:lens) {
+  out.smooth = smooth.truth(dat=dat$unobs, h=mean(h.cv[,j], na.rm=TRUE), s1star=s1[j])
+  smooth.true.psi[1,j] = out.smooth$psi
+  smooth.true.psi1[1,j] = out.smooth$psi1
+  smooth.true.psi2[1,j] = out.smooth$psi2
+  smooth.true.psi3[1,j] = out.smooth$psi3
 }
 
 save(true.psi, true.psi1, true.psi2, true.psi3, 
@@ -413,4 +408,5 @@ save(true.psi, true.psi1, true.psi2, true.psi3,
      TMLE.psi, TMLE.psi1, TMLE.psi2, TMLE.psi3, 
      init.psi, 
      psi.sd, psi.sd1, psi.sd2, psi.sd3, 
-     file=paste("h",h,"n",n,"nrep",nrep,".Rda",sep=""))
+     h.cv,
+     file=paste("corr_S1_W",corr_S1_W,"crossover_rate",crossover_rate,"nrep",nrep,".Rda",sep=""))
