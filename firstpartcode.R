@@ -369,5 +369,8 @@ psi.sd2 = matrix(NA, nrep, lens)
 psi.sd3 = matrix(NA, nrep, lens)
 
 dat = generate.data(nv=nv, np=np, corr_S1_W=corr_S1_W)
-
-save.image(file=paste("firstpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep=""))
+name = paste("firstpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep="")
+rm(iter) 
+rm(corr_S1_W) 
+rm(crossover_rate) 
+save.image(file=name)
