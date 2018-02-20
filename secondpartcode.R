@@ -50,4 +50,3 @@ row.names(out.tmle) <- s1
 # }
 
 save(out.tmle, file=paste("secondpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep=""))
-     
