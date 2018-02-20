@@ -4,7 +4,7 @@ args = commandArgs(TRUE)
 corr_S1_W = as.numeric(args[[1]])
 crossover_rate = as.numeric(args[[2]])
 nrep = as.numeric(args[[3]]) 
-# setwd("~/Desktop/Peter Gilbert/simulation")
+setwd("~/Desktop/Peter Gilbert/2018winterRA")
 library(SuperLearner)
 library(mvtnorm)
 
