@@ -52,7 +52,7 @@ row.names(out.tmle) <- s1
 
 print("before save")
 
-save(out.tmle, file=paste("secondpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep=""))
+save(out.tmle, file=paste("secondpart:","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,"iter:",iter,".RData", sep=""))
 
 
 print("yahhhhhhhh")
