@@ -235,33 +235,35 @@ estimate = function(dat, h=0.1, s1star) {
   
   #################### fluctuation #####################
   
-  #missing for A=0 & Y=1
+  # missing for A=0 & Y=1
   smooth.S1.nomissing = ifelse(is.na(smooth.S1), 100, smooth.S1) # change 100 to Inf, add flag to check weight>0 non S1 missing 
-  
-  fit1 = glm( smooth.S1.nomissing ~ 1, weights = Pi*(A==1)/Ahat, offset = log(P1hat), family = poisson()) # Add in our weights
-  P1star =  fit1$fitted.values
-  #DATA=dat
-  #save(DATA, file=paste("iter",iter,"j",j,".Rda",sep=""))
-  
-  fit2 = glm( (Y==1)*smooth.S1.nomissing ~ 1, weights = Pi*(A==1)/Ahat, offset = log(P2hat), family=poisson())
-  P2star = fit2$fitted.values
-  
-  fit3 = glm( (Y==0)*smooth.S1.nomissing ~ 1, weights = Pi*(A==0)/(1-Ahat), offset = log(P3hat), family=poisson())
-  P3star = fit3$fitted.values
+  ###  replace ~ 1 to ~ A==1
+  fit1 = glm(smooth.S1~ -1+I(A==1), weights = Pi*(A==1)/Ahat, offset = log(P1hat), family = poisson()) # Add in our weights
+  # P1star =  fit1$fitted.values[1:5]##### predict function, predict on the whole thing
+  P1star = exp(predict(fit1, newdata = as.data.frame(I(A==1))))
+
+  ###  replace ~ 1 to ~ A==1,
+  fit2 = glm((Y==1)*smooth.S1 ~ -1+I(A==1), weights = Pi*(A==1)/Ahat, offset = log(P2hat), family=poisson())
+  # P2star = fit2$fitted.values
+  P2star = exp(predict(fit2, newdata = as.data.frame(I(A==1))))
+  ###  replace ~ 1 to ~ A==0
+  fit3 = glm( (Y==0)*smooth.S1 ~ -1+I(A==0), weights = Pi*(A==0)/(1-Ahat), offset = log(P3hat), family=poisson())
+  # P3star = fit3$fitted.values
+  P3star = exp(predict(fit3, newdata = as.data.frame(I(A==0))))
   
   ################### estimation #######################
-  psi1 = mean(P1star*Pi)
-  psi2 = mean(P2star*Pi)
-  psi3 = mean(P3star*Pi)
+  psi1 = mean(P1star)
+  psi2 = mean(P2star)
+  psi3 = mean(P3star)
   psi = log(psi2/(psi1-psi3))
   init.psi = log(mean(P2hat*Pi)/(mean(P1hat*Pi)-mean(P3hat*Pi))) # not used, if engative return NA as a warning
   # log(mean(P2hat)/(mean(P1hat)-mean(P3hat)))
   
   ################### influence function/gradient ###############
-  D1 = Pi*((A==1)/Ahat*(smooth.S1.nomissing - P1star) + P1star - psi1) # times the weight o the entire thing not seperate
-  D2 = Pi*((A==1)/Ahat*((Y==1)*smooth.S1.nomissing - P2star) + P2star - psi2)
-  D3 = Pi*((A==0)/(1-Ahat)*((Y==0)*smooth.S1.nomissing - P3star) + P3star - psi3)
-  g1 = -1/(psi1-psi3) # for target parameter log(RR)
+  D1 = Pi*((A==1)/Ahat*(smooth.S1.nomissing - P1star)) + P1star - psi1 # times the weight o the entire thing not seperate
+  D2 = Pi*((A==1)/Ahat*((Y==1)*smooth.S1.nomissing - P2star)) + P2star - psi2
+  D3 = Pi*((A==0)/(1-Ahat)*((Y==0)*smooth.S1.nomissing - P3star)) + P3star - psi3
+  g1 =-1/(psi1-psi3) # for target parameter log(RR)
   g2 = 1/psi2
   g3 = 1/(psi1-psi3)
   D = g1 * D1 + g2 * D2 + g3 * D3
