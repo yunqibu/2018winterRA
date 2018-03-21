@@ -231,9 +231,9 @@ estimate = function(dat, h=0.1, s1star) {
   #A=1|W
   fit = SuperLearner(Y = A, X = data.frame(W=W), family = binomial(), 
                      SL.library = SL.library, method = "method.NNLS")
-  Ahat = as.vector(fit$SL.predict)
+  Ahat = as.vector(fit$SL.predict)  
   
-  #################### fluctuation #####################
+  #################### fluctuation ######## #############
   
   # missing for A=0 & Y=1
   smooth.S1.nomissing = ifelse(is.na(smooth.S1), 100, smooth.S1) # change 100 to Inf, add flag to check weight>0 non S1 missing 
