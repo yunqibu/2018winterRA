@@ -108,7 +108,7 @@ estimate <- function(dat, h=0.1, s1star) {
   Kh = function(x) exp(-(x/h)^2/2)/sqrt(2*pi)/h
   
   ############ initial estimate ############
-  SL.library <- c("SL.glm", "SL.glm.interaction", "SL.step", "SL.nnet", "SL.mean")
+  SL.library <- c("SL.glm", "SL.glm.interaction", "SL.step", "SL.nnet", "SL.mean") ## drop these
   smooth.S1 = Kh(S1-s1star)
   min.smooth.S1 = min(smooth.S1, na.rm=T)
   max.smooth.S1 = max(smooth.S1, na.rm=T)
@@ -236,7 +236,7 @@ estimate <- function(dat, h=0.1, s1star) {
   #################### fluctuation #####################
   
   # missing for A=0 & Y=1
-  smooth.S1.nomissing = ifelse(is.na(smooth.S1), NA, smooth.S1) # change 100 to Inf, add flag to check weight>0 non S1 missing 
+  smooth.S1.nomissing = ifelse(is.na(smooth.S1), 100, smooth.S1) # change 100 to Inf, add flag to check weight>0 non S1 missing 
   ###  replace ~ 1 to ~ A==1
   
   fit1 = glm(smooth.S1.nomissing~ -1+I(A==1), weights = Pi*(A==1)/Ahat, offset = log(P1hat), family = poisson()) # Add in our weights
