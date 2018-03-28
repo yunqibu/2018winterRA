@@ -9,9 +9,9 @@ crossover_rate = as.numeric(args[[3]])
 library(SuperLearner)
 library(mvtnorm)
 library(foreach)
-library(doParallel)
+library(doParallel) 
 
-load(paste("firstpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep="")) 
+load(paste("nomissingfirstpartfirstpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep="")) 
 #result <- matrix( ncol=10,nrow=lens)
 dat = generate.data(nv=nv, np=np,  corr_S1_W = corr_S1_W)
 obs = dat$observed

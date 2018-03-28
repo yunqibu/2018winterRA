@@ -88,7 +88,17 @@ pdf(paste("~/Desktop/Peter Gilbert/2018winterRA/Results/plots/type2:0306corr_S1_
 plot(nona[,c(16,12)], col=1, type='l', ylim=c(-5,0), ylab="")
 points(nona[,c(16,2)], col=2, type='l')
 points(nona[,c(16,10)],col=3, type='l')
-abline(a=0,b=1, lty=2, col=4)
+abline(a=0,b=1, lty=2, col=4)  
 legend("bottom", legend=c("smooth.true.psi", "psi","init.psi","true.psi"),
        col=c(1,2,3,4), lty=c(1,1,1,2), cex=0.8)
 dev.off()
+
+
+plot(0:10/10,results[,3,1],type="l",ylim=c(0.20,0.45))
+legend("topright", c("psi1","psi3"),
+       lty=c(1,1), col=1:2) 
+for (i in 1:100){
+  points(0:10/10,results[,3,i],type="l")
+  points(0:10/10,results[,5,i],type="l",col=2)
+}
+

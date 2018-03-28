@@ -24,7 +24,7 @@ generate.data = function(nv, np,  corr_S1_W) {
   logit = function(x) log(x/(1-x))
   expit = function(x) exp(x)/(1+exp(x))
   # treatment variable A
-  A = c(rep(1,nv),rep(0,np)) # A = c(rep(1,n/2),rep(0,n/2))  
+  A = c(rep(1,nv),rep(0,np)) # A = c(rep(1,n/2),rep(0,n/2))
   n = nv+np
   var_W = 1
   var_S1 = 1
@@ -64,18 +64,18 @@ generate.data = function(nv, np,  corr_S1_W) {
   # S A=0, Y=1 missing
   S = ifelse(A==1, S1, ifelse(Y==0, S1, NA)) 
   # S A=1,Y=1 : A=1,Y=0 = 1:K , other A=1,Y=0 set missing, k = 4 first
-  k=4
-  temp = table(A=A, Y=Y)
-  numA1Y1 = temp[2,2]
-  numA1Y0 = temp[2,1]
-  numA0Y0 = temp[1,1]
-  numA1Y0S = min(temp[2,2]*k, temp[2,1])
-  S.ind = sample(1:numA1Y0, numA1Y0-numA1Y0S, replace = FALSE)
-  S[A==1&Y==0][S.ind] <- NA
+  # k=4
+  # temp = table(A=A, Y=Y)
+  # numA1Y1 = temp[2,2]
+  # numA1Y0 = temp[2,1]
+  # numA0Y0 = temp[1,1]
+  # numA1Y0S = min(temp[2,2]*k, temp[2,1])
+  # S.ind = sample(1:numA1Y0, numA1Y0-numA1Y0S, replace = FALSE)
+  # S[A==1&Y==0][S.ind] <- NA
   
   # S A=0,Y=0 25% or 50% with S 75%
-  S.ind = sample(1:numA0Y0, floor((1-crossover_rate)*numA0Y0), replace = FALSE)
-  S[A==0 & Y==0][S.ind] <- NA
+  # S.ind = sample(1:numA0Y0, floor((1-crossover_rate)*numA0Y0), replace = FALSE)
+  # S[A==0 & Y==0][S.ind] <- NA
   
   # delta/P(delta=1|WAY) is the weight
   # P(delta=1|W,A,Y)
@@ -86,10 +86,10 @@ generate.data = function(nv, np,  corr_S1_W) {
   # A=0 Y=0 regress on W
   delta = 1-is.na(S)
   Pi = delta
-  fit <- glm (delta[A==1&Y==0] ~ W[A==1&Y==0], family = binomial)
-  Pi[A==1&Y==0] = delta[A==1&Y==0]/fit$fitted.values
-  fit <- glm (delta[A==0&Y==0] ~ W[A==0&Y==0], family = binomial)
-  Pi[A==0&Y==0] = delta[A==0&Y==0]/fit$fitted.values
+  #fit <- glm (delta[A==1&Y==0] ~ W[A==1&Y==0], family = binomial)
+  #Pi[A==1&Y==0] = delta[A==1&Y==0]/fit$fitted.values
+  #fit <- glm (delta[A==0&Y==0] ~ W[A==0&Y==0], family = binomial)
+  #Pi[A==0&Y==0] = delta[A==0&Y==0]/fit$fitted.values
   observed = list(A=A, W=W, Y=Y, S1=S, Pi=Pi)
   unobserved = list(S1=S1,Y0=Y0,Y1=Y1)
   return(list(observed=observed, unobserved=unobserved))
@@ -137,7 +137,7 @@ estimate <- function(dat, h=0.1, s1star) {
     out=c(out,mean(-log(P1hat)))
   }
   out1 = out
-
+  
   #Y=1,S1|A=1,W
   out=NULL
   for (h in hseq){
@@ -162,7 +162,7 @@ estimate <- function(dat, h=0.1, s1star) {
     print(out)
   }
   out2 = out
-
+  
   #Y=0,S0^c|A=0,W
   out=NULL
   for (h in hseq){
@@ -182,7 +182,7 @@ estimate <- function(dat, h=0.1, s1star) {
                          family = binomial(),
                          SL.library = SL.library, method = "method.NNLS")
     P3hat = (fit1$SL.predict*(max.smooth.S1-min.smooth.S1)+min.smooth.S1)*(1-predict(fit2,data.frame(W=W[A==0 & Y==0 & (!is.na(scaled.smooth.S1))]))$pred)
-
+    
     out=c(out,mean(-log(P3hat)))
     print(out)
   }
@@ -363,14 +363,14 @@ smooth.true.psi3 = matrix(NA, 1, lens)
 # TMLE.psi1 = matrix(NA, nrep, lens)
 # TMLE.psi2 = matrix(NA, nrep, lens)
 # TMLE.psi3 = matrix(NA, nrep, lens)
-# 
+#  
 # psi.sd = matrix(NA, nrep, lens)
 # psi.sd1 = matrix(NA, nrep, lens)
 # psi.sd2 = matrix(NA, nrep, lens)
 # psi.sd3 = matrix(NA, nrep, lens)
 
 dat = generate.data(nv=nv, np=np, corr_S1_W=corr_S1_W)
-name = paste("firstpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep="")
+name = paste("nomissingfirstpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep="")
 rm(iter) 
 rm(corr_S1_W) 
 rm(crossover_rate) 
