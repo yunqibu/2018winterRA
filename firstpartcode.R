@@ -4,7 +4,7 @@
 corr_S1_W = 0.5
 crossover_rate = 0.5
 
-setwd("~/Desktop/Peter Gilbert/2018winterRA/")
+# setwd("~/Desktop/Peter Gilbert/2018winterRA/")
 library(SuperLearner)
 library(mvtnorm)
 
@@ -108,7 +108,7 @@ estimate <- function(dat, h=0.1, s1star) {
   Kh = function(x) exp(-(x/h)^2/2)/sqrt(2*pi)/h
   
   ############ initial estimate ############
-  SL.library <- c("SL.glm", "SL.glm.interaction", "SL.step", "SL.nnet", "SL.mean") ## drop these
+  SL.library <- c("SL.glm", "SL.glm.interaction", "SL.nnet", "SL.mean") ## drop these
   smooth.S1 = Kh(S1-s1star)
   min.smooth.S1 = min(smooth.S1, na.rm=T)
   max.smooth.S1 = max(smooth.S1, na.rm=T)
