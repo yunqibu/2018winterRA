@@ -24,7 +24,7 @@ out.tmle <- foreach(j = 1:lens, .combine='rbind') %dopar% {
   library(mvtnorm)
   library(foreach)
   library(doParallel)
-  estimate(dat=obs, h=h, s1star=s1[j])
+  estimate(dat=obs, h=hseq[j], s1star=s1[j])
 }
 row.names(out.tmle) <- s1
 
