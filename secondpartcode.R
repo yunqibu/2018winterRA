@@ -10,6 +10,7 @@ library(SuperLearner)
 library(mvtnorm)
 library(foreach)
 library(doParallel) 
+library(ks)
 
 load(paste("firstpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep="")) 
 #result <- matrix( ncol=10,nrow=lens)
@@ -23,6 +24,7 @@ out.tmle <- foreach(j = 1:lens, .combine='rbind') %dopar% {
   library(SuperLearner)
   library(mvtnorm)
   library(foreach)
+  library(ks)
   library(doParallel)
   estimate(dat=obs, h=hseq[j], s1star=s1[j])
 }

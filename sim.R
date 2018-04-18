@@ -1,5 +1,5 @@
 #$ -S /usr/local/bin/Rscript
-
+# rm sl.step!!!!
 args = commandArgs(TRUE)
 corr_S1_W = as.numeric(args[[1]])
 crossover_rate = as.numeric(args[[2]])
@@ -7,7 +7,7 @@ nrep = as.numeric(args[[3]])
 setwd("~/Desktop/Peter Gilbert/2018winterRA")
 library(SuperLearner)
 library(mvtnorm)
-
+library(ks)
 # Later include dropouts: Probability of random dropout after the immune response is measured of 0.10*(1.75/2).
 
 # can't change 100 to Inf, use 10^10 instead
@@ -108,7 +108,7 @@ estimate = function(dat, h=0.1, s1star) {
   Kh = function(x) exp(-(x/h)^2/2)/sqrt(2*pi)/h
   
   ############ initial estimate ############
-  SL.library <- c("SL.glm", "SL.glm.interaction", "SL.step", "SL.nnet", "SL.mean")
+  SL.library <- c("SL.glm", "SL.glm.interaction", "SL.step", "SL.nnet", "SL.mean") # rm sl.step!!!!
   smooth.S1 = Kh(S1-s1star)
   min.smooth.S1 = min(smooth.S1, na.rm=T)
   max.smooth.S1 = max(smooth.S1, na.rm=T)
@@ -196,20 +196,26 @@ estimate = function(dat, h=0.1, s1star) {
   max.smooth.S1 = max(smooth.S1, na.rm=T)
   
   scaled.smooth.S1 = (smooth.S1-min.smooth.S1)/(max.smooth.S1-min.smooth.S1)
-  fit1 <- SuperLearner(Y = scaled.smooth.S1[A==1&(!is.na(scaled.smooth.S1))],
+  fit1 <- SuperLearner(Y = scaled.smooth.S1[A==1&(!is.na(scaled.smooth.S1))], # channge to dense np,subset data
                        X = data.frame(W=W[A==1&(!is.na(scaled.smooth.S1))]),
                        obsWeights = Pi[A==1&(!is.na(scaled.smooth.S1))],
                        family = binomial(),
                        SL.library = SL.library, method = "method.NNLS")
   P1hat = predict(fit1, data.frame(W))$pred
   P1hat = P1hat*(max.smooth.S1-min.smooth.S1)+min.smooth.S1
+
+  
+  # use kde to pick a bandwith
+  # kde joint S1 W density
+  # kde on W, same bandwith as joint or self pick
+  # devide joinnt 
   
   
-  fit1 <- SuperLearner(Y = scaled.smooth.S1[A==1 & Y==1 & (!is.na(scaled.smooth.S1))],
+  fit1 <- SuperLearner(Y = scaled.smooth.S1[A==1 & Y==1 & (!is.na(scaled.smooth.S1))], # channge to dense np,subset data
                        X = data.frame(W=W[A==1 & Y==1 & (!is.na(scaled.smooth.S1))]),
                        obsWeights = Pi[A==1 & Y==1 & (!is.na(scaled.smooth.S1))],
                        family = binomial(),
-                       SL.library = SL.library, method = "method.NNLS")
+                       SL.library = SL.library, method = "method.NNLS") # No change
   fit2 <- SuperLearner(Y = Y[A==1],
                        X = data.frame(W=W[A==1]),
                        family = binomial(),
@@ -217,13 +223,13 @@ estimate = function(dat, h=0.1, s1star) {
   P2hat = (predict(fit1, data.frame(W=W))$pred*(max.smooth.S1-min.smooth.S1)+min.smooth.S1) * predict(fit2, data.frame(W=W))$pred
   
 
-  fit1 <- SuperLearner(Y = scaled.smooth.S1[A==0 & Y==0 & (!is.na(scaled.smooth.S1))], 
+  fit1 <- SuperLearner(Y = scaled.smooth.S1[A==0 & Y==0 & (!is.na(scaled.smooth.S1))], # channge to dense np,subset data
                        X = data.frame(W=W[A==0 & Y==0 & (!is.na(scaled.smooth.S1))]), 
                        obsWeights = Pi[A==0 & Y==0 & (!is.na(scaled.smooth.S1))],
                        family = binomial(), 
-                       SL.library = SL.library, method = "method.NNLS") # rescale smooth.S1 to range 0,1, switch gaussian to binomial
+                       SL.library = SL.library, method = "method.NNLS") 
   fit2 <- SuperLearner(Y = Y[A==0], 
-                       X = data.frame(W=W[A==0]), 
+                       X = data.frame(W=W[A==0]),  # no change
                        family = binomial(), 
                        SL.library = SL.library, method = "method.NNLS")
   P3hat = (predict(fit1, data.frame(W=W))$pred*(max.smooth.S1-min.smooth.S1)+min.smooth.S1) * (1-predict(fit2, data.frame(W=W))$pred) 

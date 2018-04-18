@@ -7,6 +7,7 @@ crossover_rate = 0.5
 # setwd("~/Desktop/Peter Gilbert/2018winterRA/")
 library(SuperLearner)
 library(mvtnorm)
+library(ks)
 
 # Later include dropouts: Probability of random dropout after the immune response is measured of 0.10*(1.75/2).
 
@@ -122,22 +123,38 @@ estimate <- function(dat, h, s1star) {
   ##########
   
   smooth.S1 = Kh(S1-s1star)
-  min.smooth.S1 = min(smooth.S1, na.rm=T)
-  max.smooth.S1 = max(smooth.S1, na.rm=T)
+  # min.smooth.S1 = min(smooth.S1, na.rm=T)
+  # max.smooth.S1 = max(smooth.S1, na.rm=T)
+  # 
+  # scaled.smooth.S1 = (smooth.S1-min.smooth.S1)/(max.smooth.S1-min.smooth.S1)
+  # fit1 <- SuperLearner(Y = scaled.smooth.S1[A==1&(!is.na(scaled.smooth.S1))],
+  #                      X = data.frame(W=W[A==1&(!is.na(scaled.smooth.S1))]),
+  #                      obsWeights = Pi[A==1&(!is.na(scaled.smooth.S1))],
+  #                      family = binomial(),
+  #                      SL.library = SL.library, method = "method.NNLS")
+  # P1hat = predict(fit1, data.frame(W))$pred
+  # P1hat <- P1hat*(max.smooth.S1-min.smooth.S1)+min.smooth.S1
   
-  scaled.smooth.S1 = (smooth.S1-min.smooth.S1)/(max.smooth.S1-min.smooth.S1)
-  fit1 <- SuperLearner(Y = scaled.smooth.S1[A==1&(!is.na(scaled.smooth.S1))],
-                       X = data.frame(W=W[A==1&(!is.na(scaled.smooth.S1))]),
-                       obsWeights = Pi[A==1&(!is.na(scaled.smooth.S1))],
-                       family = binomial(),
-                       SL.library = SL.library, method = "method.NNLS")
-  P1hat = predict(fit1, data.frame(W))$pred
-  P1hat <- P1hat*(max.smooth.S1-min.smooth.S1)+min.smooth.S1
-  
+  ind <- A==1&(!is.na(smooth.S1))
+  temp=as.data.frame(cbind(smooth.S1=smooth.S1,W=W,Pi=Pi))
+  W.S1.density <- kde(x=temp[ind,c("smooth.S1", "W")]
+                      ,eval.points = temp[,c("smooth.S1", "W")]
+                      ,w=temp$Pi[ind]
+                      )
+  W.density <- kde(x=temp$W[ind]
+                   ,eval.points=temp$W) # ??? no weight here
+  cond.density <- W.S1.density$estimate / W.density$estimate # ???larger than 1
+
+  predict(W.density, x=temp[rowSums(is.na(temp))==0,2])
+
+  # use kde to pick a bandwith
+  # kde joint S1 W density
+  # kde on W, same bandwith as joint or self pick
+  # devide joinnt 
   
   fit1 <- SuperLearner(Y = scaled.smooth.S1[A==1 & Y==1 & (!is.na(scaled.smooth.S1))],
                        X = data.frame(W=W[A==1 & Y==1 & (!is.na(scaled.smooth.S1))]),
-                       obsWeights = Pi[A==1 & Y==1 & (!is.na(scaled.smooth.S1))],
+                       #obsWeights = Pi[A==1 & Y==1 & (!is.na(scaled.smooth.S1))],
                        family = binomial(),
                        SL.library = SL.library, method = "method.NNLS")
   fit2 <- SuperLearner(Y = Y[A==1],
