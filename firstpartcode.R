@@ -122,7 +122,7 @@ estimate <- function(dat, h, s1star) {
   
   ##########
   
-  smooth.S1 = Kh(S1-s1star)
+  # smooth.S1 = Kh(S1-s1star)
   # min.smooth.S1 = min(smooth.S1, na.rm=T)
   # max.smooth.S1 = max(smooth.S1, na.rm=T)
   # 
@@ -134,46 +134,61 @@ estimate <- function(dat, h, s1star) {
   #                      SL.library = SL.library, method = "method.NNLS")
   # P1hat = predict(fit1, data.frame(W))$pred
   # P1hat <- P1hat*(max.smooth.S1-min.smooth.S1)+min.smooth.S1
-  
-  ind <- A==1&(!is.na(smooth.S1))
-  temp=as.data.frame(cbind(smooth.S1=smooth.S1,W=W,Pi=Pi))
-  W.S1.density <- kde(x=temp[ind,c("smooth.S1", "W")]
-                      ,eval.points = temp[,c("smooth.S1", "W")]
-                      ,w=temp$Pi[ind]
-                      )
-  W.density <- kde(x=temp$W[ind]
-                   ,eval.points=temp$W) # ??? no weight here
-  cond.density <- W.S1.density$estimate / W.density$estimate # ???larger than 1
 
-  predict(W.density, x=temp[rowSums(is.na(temp))==0,2])
-
-  # use kde to pick a bandwith
-  # kde joint S1 W density
-  # kde on W, same bandwith as joint or self pick
-  # devide joinnt 
+  ###### Estimate the conditional density of P(S1=s1star|W) ##########
+  temp=as.data.frame(cbind(S1=S1,W=W,Pi=Pi,s1star=s1star))
   
-  fit1 <- SuperLearner(Y = scaled.smooth.S1[A==1 & Y==1 & (!is.na(scaled.smooth.S1))],
-                       X = data.frame(W=W[A==1 & Y==1 & (!is.na(scaled.smooth.S1))]),
-                       #obsWeights = Pi[A==1 & Y==1 & (!is.na(scaled.smooth.S1))],
-                       family = binomial(),
-                       SL.library = SL.library, method = "method.NNLS")
+  
+  ind <- A==1 & (!is.na(S1))
+  # P(S1,W)
+  W.S1.density <- kde(x=temp[ind,c("S1", "W")]  # S1 and W
+                      ,eval.points = temp[,c("s1star", "W")] # estimate at s1star
+                      ,w=temp$Pi[ind])
+  # P(W)
+  W.density <- kde(x=temp$W[ind], eval.points=temp$W) # ??? no weight here
+  # P(S1=s1star|W)
+  P1hat <- W.S1.density$estimate / W.density$estimate # ???larger than 1
+
+
+    
+  # fit1 <- SuperLearner(Y = scaled.smooth.S1[A==1 & Y==1 & (!is.na(scaled.smooth.S1))],
+  #                      X = data.frame(W=W[A==1 & Y==1 & (!is.na(scaled.smooth.S1))]),
+  #                      obsWeights = Pi[A==1 & Y==1 & (!is.na(scaled.smooth.S1))],
+  #                      family = binomial(),
+  #                      SL.library = SL.library, method = "method.NNLS")
+  ind <- A==1 & Y==1 & (!is.na(S1))
+  # P(S1,W)
+  W.S1.density <- kde(x=temp[ind,c("S1", "W")]  
+                      ,eval.points = temp[,c("s1star", "W")] 
+                      ,w=temp$Pi[ind])
+  # P(W)
+  W.density <- kde(x=temp$W[ind], eval.points=temp$W)
   fit2 <- SuperLearner(Y = Y[A==1],
                        X = data.frame(W=W[A==1]),
                        family = binomial(),
                        SL.library = SL.library, method = "method.NNLS")
-  P2hat = (predict(fit1, data.frame(W=W))$pred*(max.smooth.S1-min.smooth.S1)+min.smooth.S1) * predict(fit2, data.frame(W=W))$pred
+  P2hat = (W.S1.density$estimate / W.density$estimate) * predict(fit2, data.frame(W=W))$pred
+
+ 
   
   
-  fit1 <- SuperLearner(Y = scaled.smooth.S1[A==0 & Y==0 & (!is.na(scaled.smooth.S1))], 
-                       X = data.frame(W=W[A==0 & Y==0 & (!is.na(scaled.smooth.S1))]), 
-                       obsWeights = Pi[A==0 & Y==0 & (!is.na(scaled.smooth.S1))],
-                       family = binomial(), 
-                       SL.library = SL.library, method = "method.NNLS") # rescale smooth.S1 to range 0,1, switch gaussian to binomial
+  # fit1 <- SuperLearner(Y = scaled.smooth.S1[A==0 & Y==0 & (!is.na(scaled.smooth.S1))], 
+  #                      X = data.frame(W=W[A==0 & Y==0 & (!is.na(scaled.smooth.S1))]), 
+  #                      obsWeights = Pi[A==0 & Y==0 & (!is.na(scaled.smooth.S1))],
+  #                      family = binomial(), 
+  #                      SL.library = SL.library, method = "method.NNLS") # rescale smooth.S1 to range 0,1, switch gaussian to binomial
+  ind <- A==0 & Y==0 & (!is.na(S1))
+  # P(S1,W)
+  W.S1.density <- kde(x=temp[ind,c("S1", "W")]  
+                      ,eval.points = temp[,c("s1star", "W")] 
+                      ,w=temp$Pi[ind])
+  # P(W)
+  W.density <- kde(x=temp$W[ind], eval.points=temp$W)
   fit2 <- SuperLearner(Y = Y[A==0], 
                        X = data.frame(W=W[A==0]), 
                        family = binomial(), 
                        SL.library = SL.library, method = "method.NNLS")
-  P3hat = (predict(fit1, data.frame(W=W))$pred*(max.smooth.S1-min.smooth.S1)+min.smooth.S1) * (1-predict(fit2, data.frame(W=W))$pred) 
+  P3hat = (W.S1.density$estimate / W.density$estimate) * (1-predict(fit2, data.frame(W=W))$pred) 
   
   #A=1|W
   fit = SuperLearner(Y = A, X = data.frame(W=W), family = binomial(), 
@@ -316,6 +331,7 @@ smooth.true.psi3 = matrix(NA, 1, lens)
 # psi.sd2 = matrix(NA, nrep, lens)
 # psi.sd3 = matrix(NA, nrep, lens)
 hseq=c(0.5, 0.5, 0.6, 0.6, 0.6, 0.7, 0.7, 0.7, 0.8, 1.0, 1.0)
+#hseq=rep(0.9, 11)
 dat = generate.data(nv=nv, np=np, corr_S1_W=corr_S1_W)
 name = paste("firstpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep="")
 #rm(iter) 
