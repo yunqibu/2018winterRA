@@ -29,7 +29,7 @@ smooth.true.psi2 <- array(,dim=c(lens))
 smooth.true.psi3 <- array(,dim=c(lens))
 
 for (j in 1:lens) {
-  out.smooth = smooth.truth(dat=dat$unobs, h=withna$h[j], s1star=s1[j])
+  out.smooth = smooth.truth(dat=dat$unobs, h=nona$h[j], s1star=s1[j])
   smooth.true.psi[j] = out.smooth$psi
   smooth.true.psi1[j] = out.smooth$psi1
   smooth.true.psi2[j] = out.smooth$psi2
@@ -105,7 +105,7 @@ for (i in 1:9){
   points(0:10/10,results[,5,i],type="l",col=2)
 }
 
-pdf(file="Results/plots/0410_all_psi.pdf") 
+pdf(file="Results/plots/0425_all_psi.pdf") 
 par(mfrow = c(1,1))
 for(i in 1:11){
   ci <- quantile(results[i,1,],c(0.025,0.925),na.rm = T)
@@ -150,17 +150,21 @@ if(2==3){
   yrange <- range(c(nona$true.psi,nona$smooth.true.psi,results[,c(1,9),]),na.rm=T)
   #yrange[1] <- yrange[1]-1
   #yrange[2] <- yrange[2]+1
-  plot(results[i,1,], ylim=yrange,col="blue",pch=15, 
-       main=paste("s1=",nona$s1[i],", psi NA % =",round(nona$psi_NA_percent[i], digits=2), sep=""))
-  points(results[i,9,],col="orange",pch=17)
-  abline(h=nona$true.psi[i],col="red", lty=1)
-  abline(h=nona$smooth.true.psi[i],col="brown", lty=2)
-  abline(h=ci[1], lty=3,col="blue")
-  abline(h=ci[2], lty=3,col="blue")
-  legend( x="topright", 
-          legend=c("true psi","psi","smooth psi","initial psi","psi 95%"),
-          col=c("red","blue","brown","orange","blue"), lwd=1, lty=c(1,NA,2,NA,3),
-          pch=c(NA,15,NA,17,NA) )
+  for(i in 1:lens){
+    plot(results[i,1,], ylim=yrange,col="blue",pch=15, 
+         main=paste("s1=",nona$s1[i],", psi NA % =",round(nona$psi_NA_percent[i], digits=2), sep=""))
+    points(results[i,9,],col="orange",pch=17)
+    abline(h=nona$true.psi[i],col="red", lty=1)
+    abline(h=nona$smooth.true.psi[i],col="brown", lty=2)
+    abline(h=nona$psi_95_l[i], lty=3,col="blue")
+    abline(h=nona$psi_95_h[i], lty=3,col="blue")
+    legend( x="topright", 
+            legend=c("true psi","psi","smooth psi","initial psi","psi 95%"),
+            col=c("red","blue","brown","orange","blue"), lwd=1, lty=c(1,NA,2,NA,3),
+            pch=c(NA,15,NA,17,NA) )
+  }
+    
+  
   
 
 }
