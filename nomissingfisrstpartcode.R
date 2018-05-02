@@ -86,7 +86,7 @@ generate.data = function(nv, np,  corr_S1_W) {
   # A=0 Y=0 regress on W
   delta = 1-is.na(S)
   Pi = delta
-  Pi[A==1&Y==0] <- 1
+  Pi[A==0&Y==1] <- 1
   #fit <- glm (delta[A==1&Y==0] ~ W[A==1&Y==0], family = binomial)
   #Pi[A==1&Y==0] = delta[A==1&Y==0]/fit$fitted.values
   #fit <- glm (delta[A==0&Y==0] ~ W[A==0&Y==0], family = binomial)

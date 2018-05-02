@@ -1,6 +1,7 @@
 setwd("~/Desktop/Peter Gilbert/2018winterRA")
 library(mvtnorm )
 library(ks)
+library(gmodels)
 if(2==3)
 {
   results <- array(,dim=c(11,10,100))
@@ -105,10 +106,11 @@ for (i in 1:9){
   points(0:10/10,results[,5,i],type="l",col=2)
 }
 
-pdf(file="Results/plots/0502_all_psi.pdf") 
+pdf(file="Results/plots/0502_nomiss_all_psi.pdf") 
 par(mfrow = c(1,1))
 for(i in 1:11){
-  ci <- quantile(results[i,1,],c(0.025,0.925),na.rm = T)
+  #ci <- quantile(results[i,1,],c(0.025,0.925),na.rm = T)
+  ci <- ci(results[i,1,])
   yrange <- range(c(nona$true.psi,nona$smooth.true.psi,results[,c(1,9),]),na.rm=T)
   #yrange[1] <- yrange[1]-1
   #yrange[2] <- yrange[2]+1
@@ -129,7 +131,8 @@ dev.off()
 
 if(2==3){
   for(i in 1:lens){
-    ci <- quantile(results[i,1,],c(0.025,0.925),na.rm = T)
+    #ci <- quantile(results[i,1,],c(0.025,0.925),na.rm = T)
+    ci <- ci(results[i,1,])
     nona$psi_95_l[i] <- ci[1]
     nona$psi_95_h[i] <- ci[2]
     withna$psi_95_l[i] <- ci[1]

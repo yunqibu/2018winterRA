@@ -83,11 +83,11 @@ generate.data = function(nv, np,  corr_S1_W) {
   # delta~W A Y stratify(A=0, A=1, Y=0, Y=1)
   # A=1 Y=1 all 1
   # A=1 Y=0 regress on W
-  # A=0 Y=1 Pi=1
+  # A=0 Y=1 delta=0
   # A=0 Y=0 regress on W
   delta = 1-is.na(S)
   Pi = delta
-  #Pi[A==0&Y==1] = 1
+  Pi[A==0&Y==1] <- 1
   fit <- glm (delta[A==1&Y==0] ~ W[A==1&Y==0], family = binomial)
   Pi[A==1&Y==0] = delta[A==1&Y==0]/fit$fitted.values
   fit <- glm (delta[A==0&Y==0] ~ W[A==0&Y==0], family = binomial)
@@ -98,7 +98,7 @@ generate.data = function(nv, np,  corr_S1_W) {
 }
 
 # DATA=NULL
-function(dat, h, s1star) {
+estimate <- function(dat, h, s1star) {
   A = dat$A
   W = dat$W
   S1 = dat$S1
@@ -212,12 +212,13 @@ function(dat, h, s1star) {
   P3star = fit3$fitted.values
   
   
-  ################### estimation #####################
+  ################### estimation #######################
   psi1 = mean(P1star)
   psi2 = mean(P2star)
   psi3 = mean(P3star)
   psi = log(psi2/(psi1-psi3))
-  init.psi = log(mean(P2hat)/(mean(P1hat)-mean(P3hat))) # Delete the Pi
+  init.psi = log(mean(P2hat)/(mean(P1hat)-mean(P3hat))) # not used, if engative return NA as a warning
+  # log(mean(P2hat)/(mean(P1hat)-mean(P3hat)))
   
   ################### influence function/gradient ###############
   D1 = Pi*((A==1)/Ahat*(smooth.S1.nomissing - P1star)) + P1star - psi1 # times the weight o the entire thing not seperate
@@ -330,8 +331,8 @@ smooth.true.psi3 = matrix(NA, 1, lens)
 # psi.sd1 = matrix(NA, nrep, lens)
 # psi.sd2 = matrix(NA, nrep, lens)
 # psi.sd3 = matrix(NA, nrep, lens)
-#hseq=c(0.5, 0.5, 0.6, 0.6, 0.6, 0.7, 0.7, 0.7, 0.8, 1.0, 1.0)
-hseq=rep(0.9, 11)
+hseq=c(0.5, 0.5, 0.6, 0.6, 0.6, 0.7, 0.7, 0.7, 0.8, 1.0, 1.0)
+#hseq=rep(0.9, 11)
 dat = generate.data(nv=nv, np=np, corr_S1_W=corr_S1_W)
 name = paste("firstpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep="")
 #rm(iter) 
