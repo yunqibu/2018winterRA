@@ -7,7 +7,7 @@ if(2==3)
 
 corr_S1_W = 0.5
 crossover_rate = 0.5
-for (iter in 2:100){
+for (iter in 1:100){
   print(iter)
   load(paste("Resultssecondpart:","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,"iter:",iter,".RData", sep=""))
   print("loaded")
@@ -22,7 +22,7 @@ colnames(withna) <- colnames(out.tmle)
 colnames(nona) <- colnames(out.tmle) 
 rownames(nona) <- rownames(out.tmle) 
 rownames(withna) <- rownames(out.tmle) 
-load(paste("firstpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep=""))
+load(paste("nomissingfirstpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep=""))
 smooth.true.psi <- array(,dim=c(lens))
 smooth.true.psi1 <- array(,dim=c(lens))
 smooth.true.psi2 <- array(,dim=c(lens))
@@ -105,7 +105,7 @@ for (i in 1:9){
   points(0:10/10,results[,5,i],type="l",col=2)
 }
 
-pdf(file="Results/plots/0425_all_psi.pdf") 
+pdf(file="Results/plots/0425_nomiss_all_psi.pdf") 
 par(mfrow = c(1,1))
 for(i in 1:11){
   ci <- quantile(results[i,1,],c(0.025,0.925),na.rm = T)
@@ -142,8 +142,8 @@ if(2==3){
     nona$cover.true.psi[i] <- nona$true.psi[i]>=ci[1] & nona$true.psi[i]<=ci[2]
     nona$cover.smooth.true.psi[i] <- nona$smooth.true.psi[i]>=ci[1] & nona$smooth.true.psi[i]<=ci[2]
   }
-  write.csv(nona, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/removeNaN/0410corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
-  write.csv(withna, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/includeNaN/0410corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
+  write.csv(nona, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/removeNaN/0425nomisscorr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
+  write.csv(withna, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/includeNaN/0425nomisscorr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
   
 }
 
