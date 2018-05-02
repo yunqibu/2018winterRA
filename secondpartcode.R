@@ -18,7 +18,7 @@ dat = generate.data(nv=nv, np=np,  corr_S1_W = corr_S1_W)
 obs = dat$observed
 unobs = dat$unobserved
 
-cl<-makeCluster(11)
+cl<-makeCluster(1)
 registerDoParallel(cl)
 out.tmle <- foreach(j = 1:lens, .combine='rbind') %dopar% {
   library(SuperLearner)
