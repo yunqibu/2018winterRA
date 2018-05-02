@@ -87,7 +87,7 @@ generate.data = function(nv, np,  corr_S1_W) {
   # A=0 Y=0 regress on W
   delta = 1-is.na(S)
   Pi = delta
-  Pi[A==0&Y==1] = 1
+  #Pi[A==0&Y==1] = 1
   fit <- glm (delta[A==1&Y==0] ~ W[A==1&Y==0], family = binomial)
   Pi[A==1&Y==0] = delta[A==1&Y==0]/fit$fitted.values
   fit <- glm (delta[A==0&Y==0] ~ W[A==0&Y==0], family = binomial)
@@ -98,7 +98,7 @@ generate.data = function(nv, np,  corr_S1_W) {
 }
 
 # DATA=NULL
-estimate <- function(dat, h, s1star) {
+function(dat, h, s1star) {
   A = dat$A
   W = dat$W
   S1 = dat$S1
@@ -135,7 +135,7 @@ estimate <- function(dat, h, s1star) {
   #                      SL.library = SL.library, method = "method.NNLS")
   # P1hat = predict(fit1, data.frame(W))$pred
   # P1hat <- P1hat*(max.smooth.S1-min.smooth.S1)+min.smooth.S1
-
+  
   ###### Estimate the conditional density of P(S1=s1star|W) ##########
   temp=as.data.frame(cbind(S1=S1,W=W,Pi=Pi,s1star=s1star))
   
@@ -149,9 +149,9 @@ estimate <- function(dat, h, s1star) {
   W.density <- kde(x=temp$W[ind], eval.points=temp$W) # ??? no weight here
   # P(S1=s1star|W)
   P1hat <- W.S1.density$estimate / W.density$estimate # ???larger than 1
-
-
-    
+  
+  
+  
   # fit1 <- SuperLearner(Y = scaled.smooth.S1[A==1 & Y==1 & (!is.na(scaled.smooth.S1))],
   #                      X = data.frame(W=W[A==1 & Y==1 & (!is.na(scaled.smooth.S1))]),
   #                      obsWeights = Pi[A==1 & Y==1 & (!is.na(scaled.smooth.S1))],
@@ -169,8 +169,8 @@ estimate <- function(dat, h, s1star) {
                        family = binomial(),
                        SL.library = SL.library, method = "method.NNLS")
   P2hat = (W.S1.density$estimate / W.density$estimate) * predict(fit2, data.frame(W=W))$pred
-
- 
+  
+  
   
   
   # fit1 <- SuperLearner(Y = scaled.smooth.S1[A==0 & Y==0 & (!is.na(scaled.smooth.S1))], 

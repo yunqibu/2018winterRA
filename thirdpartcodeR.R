@@ -105,7 +105,7 @@ for (i in 1:9){
   points(0:10/10,results[,5,i],type="l",col=2)
 }
 
-pdf(file="Results/plots/0425_nomiss_all_psi.pdf") 
+pdf(file="Results/plots/0502_all_psi.pdf") 
 par(mfrow = c(1,1))
 for(i in 1:11){
   ci <- quantile(results[i,1,],c(0.025,0.925),na.rm = T)
