@@ -251,7 +251,7 @@ smooth.truth = function(dat, h, s1star) {
   Y1 = dat$Y1
   n = length(S1)
   Kh = function(x) exp(-(x/h)^2/2)/sqrt(2*pi)/h
-  SL.library <- c("SL.glm", "SL.glm.interaction", "SL.step", "SL.nnet", "SL.mean")
+  # SL.library <- c("SL.glm", "SL.glm.interaction", "SL.step", "SL.nnet", "SL.mean")
   smooth.S1 = Kh(S1-s1star)
   
   psi1 = mean(smooth.S1)

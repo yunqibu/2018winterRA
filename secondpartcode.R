@@ -12,13 +12,14 @@ library(foreach)
 library(doParallel) 
 library(ks)
 
-load(paste("firstpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep="")) 
+load(paste("nomissingfirstpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep="")) 
 #result <- matrix( ncol=10,nrow=lens)
+set.seed(iter)
 dat = generate.data(nv=nv, np=np,  corr_S1_W = corr_S1_W)
 obs = dat$observed
 unobs = dat$unobserved
 
-cl<-makeCluster(1)
+cl<-makeCluster(3)
 registerDoParallel(cl)
 out.tmle <- foreach(j = 1:lens, .combine='rbind') %dopar% {
   library(SuperLearner)
