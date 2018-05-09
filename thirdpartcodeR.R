@@ -23,7 +23,7 @@ colnames(withna) <- colnames(out.tmle)
 colnames(nona) <- colnames(out.tmle) 
 rownames(nona) <- rownames(out.tmle) 
 rownames(withna) <- rownames(out.tmle) 
-load(paste("nomissingfirstpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep=""))
+load(paste("firstpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep=""))
 rep.smooth <- 10
 smooth.true.psi <- array(,dim=c(lens,rep.smooth))
 smooth.true.psi1 <- array(,dim=c(lens,rep.smooth))
@@ -76,7 +76,7 @@ withna$true.psi3 = true.psi3
 withna$s1 = s1
 withna$psi_NA_percent <- rowMeans(is.na(results[,1,]))
 nona$psi_NA_percent <- rowMeans(is.na(results[,1,]))
-save(results, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/1000iter/0509nomisscorr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep=""))
+save(results, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/1000iter/0509corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep=""))
 write.csv(nona, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/removeNaN/0410corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
 write.csv(withna, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/includeNaN/0410corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
 }
@@ -112,7 +112,7 @@ for (i in 1:9){
   points(0:10/10,results[,5,i],type="l",col=2)
 }
 
-pdf(file="Results/plots/0509_nomiss_all_psi.pdf") 
+pdf(file="Results/plots/0509_all_psi.pdf") 
 par(mfrow = c(1,1))
 for(i in 1:11){
   ci <- cbind(results[i,1,]-qnorm(0.975)*results[i,2,], 
@@ -148,7 +148,7 @@ if(2==3){
     nona$ci.coverage.true.psi[i] <- mean(nona$true.psi[i]>=ci[,1] & nona$true.psi[i]<=ci[,2], na.rm=T)
     nona$ci.coverage.smooth.true.psi[i] <-  mean(nona$smooth.true.psi[i]>=ci[,1] & nona$smooth.true.psi[i]<=ci[,2], na.rm=T)
   }
-  write.csv(nona, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/removeNaN/0509nomisscorr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
-  write.csv(withna, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/includeNaN/0509nomisscorr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
+  write.csv(nona, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/removeNaN/0509corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
+  write.csv(withna, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/includeNaN/0509corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
   
 }
