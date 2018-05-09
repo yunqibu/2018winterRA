@@ -23,27 +23,33 @@ colnames(withna) <- colnames(out.tmle)
 colnames(nona) <- colnames(out.tmle) 
 rownames(nona) <- rownames(out.tmle) 
 rownames(withna) <- rownames(out.tmle) 
-load(paste("firstpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep=""))
-smooth.true.psi <- array(,dim=c(lens))
-smooth.true.psi1 <- array(,dim=c(lens))
-smooth.true.psi2 <- array(,dim=c(lens))
-smooth.true.psi3 <- array(,dim=c(lens))
+load(paste("nomissingfirstpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep=""))
+rep.smooth <- 10
+smooth.true.psi <- array(,dim=c(lens,rep.smooth))
+smooth.true.psi1 <- array(,dim=c(lens,rep.smooth))
+smooth.true.psi2 <- array(,dim=c(lens,rep.smooth))
+smooth.true.psi3 <- array(,dim=c(lens,rep.smooth))
 
-for (j in 1:lens) {
-  out.smooth = smooth.truth(dat=dat$unobs, h=nona$h[j], s1star=s1[j])
-  smooth.true.psi[j] = out.smooth$psi
-  smooth.true.psi1[j] = out.smooth$psi1
-  smooth.true.psi2[j] = out.smooth$psi2
-  smooth.true.psi3[j] = out.smooth$psi3
+for (i in 1:rep.smooth){
+  print(i)
+  for (j in 1:lens) {
+    dat = generate.data(nv=nv, np=np, corr_S1_W=corr_S1_W)
+    out.smooth = smooth.truth(dat=dat$unobs, h=nona$h[j], s1star=s1[j])
+    smooth.true.psi[j,i] = out.smooth$psi
+    smooth.true.psi1[j,i] = out.smooth$psi1
+    smooth.true.psi2[j,i] = out.smooth$psi2
+    smooth.true.psi3[j,i] = out.smooth$psi3
+  }
 }
-nona$smooth.true.psi = smooth.true.psi
-nona$smooth.true.psi1 = smooth.true.psi1
-nona$smooth.true.psi2 = smooth.true.psi2
-nona$smooth.true.psi3 = smooth.true.psi3
-withna$smooth.true.psi = smooth.true.psi
-withna$smooth.true.psi1 = smooth.true.psi1
-withna$smooth.true.psi2 = smooth.true.psi2
-withna$smooth.true.psi3 = smooth.true.psi3
+
+nona$smooth.true.psi = rowMeans (smooth.true.psi)
+nona$smooth.true.psi1 = rowMeans(smooth.true.psi1)
+nona$smooth.true.psi2 = rowMeans(smooth.true.psi2)
+nona$smooth.true.psi3 = rowMeans(smooth.true.psi3)
+withna$smooth.true.psi = rowMeans(smooth.true.psi)
+withna$smooth.true.psi1 = rowMeans(smooth.true.psi1)
+withna$smooth.true.psi2 = rowMeans(smooth.true.psi2)
+withna$smooth.true.psi3 = rowMeans(smooth.true.psi3)
 
 true.psi = numeric(lens)
 true.psi1 = numeric(lens)
@@ -70,7 +76,7 @@ withna$true.psi3 = true.psi3
 withna$s1 = s1
 withna$psi_NA_percent <- rowMeans(is.na(results[,1,]))
 nona$psi_NA_percent <- rowMeans(is.na(results[,1,]))
-save(results, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/1000iter/0502corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep=""))
+save(results, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/1000iter/0509nomisscorr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep=""))
 write.csv(nona, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/removeNaN/0410corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
 write.csv(withna, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/includeNaN/0410corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
 }
@@ -106,21 +112,22 @@ for (i in 1:9){
   points(0:10/10,results[,5,i],type="l",col=2)
 }
 
-pdf(file="Results/plots/0502_all_psi.pdf") 
+pdf(file="Results/plots/0509_nomiss_all_psi.pdf") 
 par(mfrow = c(1,1))
 for(i in 1:11){
-  #ci <- quantile(results[i,1,],c(0.025,0.925),na.rm = T)
-  ci <- ci(results[i,1,])[2:3]
+  ci <- cbind(results[i,1,]-qnorm(0.975)*results[i,2,], 
+              results[i,1,]+qnorm(0.975)*results[i,2,])
   yrange <- range(c(nona$true.psi,nona$smooth.true.psi,results[,c(1,9),]),na.rm=T)
   #yrange[1] <- yrange[1]-1
   #yrange[2] <- yrange[2]+1
-  plot(results[i,1,], ylim=yrange,col="blue",pch=15, 
+  plot(results[i,1,], ylim=yrange,col="blue",pch=15, xlab="iteration",ylab="psi",
        main=paste("s1=",nona$s1[i],", psi NA % =",round(nona$psi_NA_percent[i], digits=2), sep=""))
-  points(results[i,9,],col="orange",pch=17)
+  points(results[i,9,], col="orange", type="p", pch=17)
+  points(ci[,1], type="l", lty=3 ,col="blue")
+  points(ci[,2], type="l", lty=3 ,col="blue")
   abline(h=nona$true.psi[i],col="red", lty=1)
   abline(h=nona$smooth.true.psi[i],col="brown", lty=2)
-  abline(h=ci[1], lty=3,col="blue")
-  abline(h=ci[2], lty=3,col="blue")
+  
   legend( x="topright", 
           legend=c("true psi","psi","smooth psi","initial psi","psi 95%"),
           col=c("red","blue","brown","orange","blue"), lwd=1, lty=c(1,NA,2,NA,3),
@@ -131,43 +138,17 @@ dev.off()
 
 if(2==3){
   for(i in 1:lens){
-    #ci <- quantile(results[i,1,],c(0.025,0.925),na.rm = T)
-    ci <- ci(results[i,1,])[2:3]
-    nona$psi_95_l[i] <- ci[1]
-    nona$psi_95_h[i] <- ci[2]
-    withna$psi_95_l[i] <- ci[1]
-    withna$psi_95_h[i] <- ci[2]
+    ci <- cbind(results[i,1,]-qnorm(0.975)*results[i,2,], 
+                results[i,1,]+qnorm(0.975)*results[i,2,])
     bias <- results[i,1,]-nona$true.psi[i]
     nona$bias.mean[i] <-mean(bias, na.rm=T)
     nona$bias.sd[i] <-sd(bias, na.rm=T)
     nona$bias.min[i]<-range(bias, na.rm=T)[1]
     nona$bias.max[i] <-range(bias, na.rm=T)[2]
-    nona$cover.true.psi[i] <- nona$true.psi[i]>=ci[1] & nona$true.psi[i]<=ci[2]
-    nona$cover.smooth.true.psi[i] <- nona$smooth.true.psi[i]>=ci[1] & nona$smooth.true.psi[i]<=ci[2]
+    nona$ci.coverage.true.psi[i] <- mean(nona$true.psi[i]>=ci[,1] & nona$true.psi[i]<=ci[,2], na.rm=T)
+    nona$ci.coverage.smooth.true.psi[i] <-  mean(nona$smooth.true.psi[i]>=ci[,1] & nona$smooth.true.psi[i]<=ci[,2], na.rm=T)
   }
-  write.csv(nona, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/removeNaN/0502corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
-  write.csv(withna, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/includeNaN/0502corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
+  write.csv(nona, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/removeNaN/0509nomisscorr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
+  write.csv(withna, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/includeNaN/0509nomisscorr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
   
-}
-
-  yrange <- range(c(nona$true.psi,nona$smooth.true.psi,results[,c(1,9),]),na.rm=T)
-  #yrange[1] <- yrange[1]-1
-  #yrange[2] <- yrange[2]+1
-  for(i in 1:lens){
-    plot(results[i,1,], ylim=yrange,col="blue",pch=15, 
-         main=paste("s1=",nona$s1[i],", psi NA % =",round(nona$psi_NA_percent[i], digits=2), sep=""))
-    points(results[i,9,],col="orange",pch=17)
-    abline(h=nona$true.psi[i],col="red", lty=1)
-    abline(h=nona$smooth.true.psi[i],col="brown", lty=2)
-    abline(h=nona$psi_95_l[i], lty=3,col="blue")
-    abline(h=nona$psi_95_h[i], lty=3,col="blue")
-    legend( x="topright", 
-            legend=c("true psi","psi","smooth psi","initial psi","psi 95%"),
-            col=c("red","blue","brown","orange","blue"), lwd=1, lty=c(1,NA,2,NA,3),
-            pch=c(NA,15,NA,17,NA) )
-  }
-    
-  
-  
-
 }
