@@ -88,9 +88,11 @@ generate.data = function(nv, np,  corr_S1_W) {
   delta = 1-is.na(S)
   Pi = delta
   Pi[A==0&Y==1] <- 1
-  fit <- glm (delta[A==1&Y==0] ~ W[A==1&Y==0], family = binomial)
+  #fit <- glm (delta[A==1&Y==0] ~ W[A==1&Y==0], family = binomial) # take out W
+  fit <- glm (delta[A==1&Y==0] ~ 1, family = binomial)
   Pi[A==1&Y==0] = delta[A==1&Y==0]/fit$fitted.values
-  fit <- glm (delta[A==0&Y==0] ~ W[A==0&Y==0], family = binomial)
+  #fit <- glm (delta[A==0&Y==0] ~ W[A==0&Y==0], family = binomial) # take out W
+  fit <- glm (delta[A==0&Y==0] ~ 1, family = binomial)
   Pi[A==0&Y==0] = delta[A==0&Y==0]/fit$fitted.values
   observed = list(A=A, W=W, Y=Y, S1=S, Pi=Pi)
   unobserved = list(S1=S1,Y0=Y0,Y1=Y1)
