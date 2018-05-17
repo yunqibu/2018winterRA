@@ -6,7 +6,7 @@ if(2==3)
 {
   results <- array(,dim=c(11,10,100))
 
-corr_S1_W = 0.5
+corr_S1_W = 0.25
 crossover_rate = 0.5
 for (iter in 1:100){
   print(iter)
@@ -23,7 +23,7 @@ colnames(withna) <- colnames(out.tmle)
 colnames(nona) <- colnames(out.tmle) 
 rownames(nona) <- rownames(out.tmle) 
 rownames(withna) <- rownames(out.tmle) 
-load(paste("firstpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep=""))
+load(paste("nomissingfirstpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep=""))
 rep.smooth <- 10
 smooth.true.psi <- array(,dim=c(lens,rep.smooth))
 smooth.true.psi1 <- array(,dim=c(lens,rep.smooth))
@@ -76,9 +76,16 @@ withna$true.psi3 = true.psi3
 withna$s1 = s1
 withna$psi_NA_percent <- rowMeans(is.na(results[,1,]))
 nona$psi_NA_percent <- rowMeans(is.na(results[,1,]))
-save(results, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/1000iter/0509corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep=""))
-write.csv(nona, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/removeNaN/0410corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
-write.csv(withna, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/includeNaN/0410corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
+for(i in 1:lens){
+  ci <- cbind(results[i,1,]-qnorm(0.975)*results[i,2,], 
+              results[i,1,]+qnorm(0.975)*results[i,2,])
+  RR.u.ci <- exp(ci[,2])
+  RR.u.ci[is.na(RR.u.ci)]<-0
+  nona$power[i] <-mean(RR.u.ci>1)
+}
+save(results, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/1000iter/0517nomisscorr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep=""))
+write.csv(nona, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/removeNaN/0517nomisscorr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
+write.csv(withna, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/includeNaN/0517nomisscorr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
 }
 else{
   corr_S1_W = 0.5
@@ -93,26 +100,27 @@ pdf(paste("~/Desktop/Peter Gilbert/2018winterRA/Results/plots/type1:0306corr_S1_
 plot(nona[,c(20,11,16,12,2,10)])
 dev.off()
 
-pdf(paste("~/Desktop/Peter Gilbert/2018winterRA/Results/plots/type2:0306corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".pdf", sep=""),
-    width=6,height=6,paper='special') 
-plot(nona[,c(16,12)], col=1, type='l', ylim=c(-5,0), ylab="")
-points(nona[,c(16,2)], col=2, type='l')
-points(nona[,c(16,10)],col=3, type='l')
-abline(a=0,b=1, lty=2, col=4)  
-legend("bottom", legend=c("smooth.true.psi", "psi","init.psi","true.psi"),
-       col=c(1,2,3,4), lty=c(1,1,1,2), cex=0.8)
-dev.off()
+# pdf(paste("~/Desktop/Peter Gilbert/2018winterRA/Results/plots/type2:0306corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".pdf", sep=""),
+#     width=6,height=6,paper='special') 
+# plot(nona[,c(16,12)], col=1, type='l', ylim=c(-5,0), ylab="")
+# points(nona[,c(16,2)], col=2, type='l')
+# points(nona[,c(16,10)],col=3, type='l')
+# abline(a=0,b=1, lty=2, col=4)  
+# legend("bottom", legend=c("smooth.true.psi", "psi","init.psi","true.psi"),
+#        col=c(1,2,3,4), lty=c(1,1,1,2), cex=0.8)
+# dev.off()
 
 
-plot(0:10/10,results[,3,1],type="l",ylim=c(0.20,0.45))
-legend("topright", c("psi1","psi3"),
-       lty=c(1,1), col=1:2) 
-for (i in 1:9){
-  points(0:10/10,results[,3,i],type="l")
-  points(0:10/10,results[,5,i],type="l",col=2)
-}
+# plot(0:10/10,results[,3,1],type="l",ylim=c(0.20,0.45))
+# legend("topright", c("psi1","psi3"),
+#        lty=c(1,1), col=1:2) 
+# for (i in 1:9){
+#   points(0:10/10,results[,3,i],type="l")
+#   points(0:10/10,results[,5,i],type="l",col=2)
+# }
 
-pdf(file="Results/plots/0509_all_psi.pdf") 
+pdf(file=
+    paste("Results/plots/0517_nomiss_all_psi_corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".pdf", sep="")) 
 par(mfrow = c(1,1))
 for(i in 1:11){
   ci <- cbind(results[i,1,]-qnorm(0.975)*results[i,2,], 

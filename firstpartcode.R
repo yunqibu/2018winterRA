@@ -1,7 +1,8 @@
 #$ -S /usr/local/bin/Rscript
 
-
+# correlation between S1 and W
 corr_S1_W = 0.5
+# crossover rate of S
 crossover_rate = 0.5
 
 # setwd("~/Desktop/Peter Gilbert/2018winterRA/")
@@ -13,11 +14,11 @@ library(ks)
 
 # can't change 100 to Inf, use 10^10 instead
 
-# h = as.numeric(args[[1]]) #.1~.5 bandwith
+# bandwith
 h = 0.1
-# nv = as.numeric(args[[2]]) # trt 4200 ctl 3000
+# treatment, virus 
 nv = 4200
-# np = as.numeric(args[[3]])
+# control, placebo
 np = 3000
 
 
@@ -25,17 +26,22 @@ generate.data = function(nv, np,  corr_S1_W) {
   logit = function(x) log(x/(1-x))
   expit = function(x) exp(x)/(1+exp(x))
   # treatment variable A
-  A = c(rep(1,nv),rep(0,np)) # A = c(rep(1,n/2),rep(0,n/2))  
-  n = nv+np
+  A = c(rep(1,nv),rep(0,np)) 
+  # total number or subjects
+  n = nv+np 
+  # variance of W
   var_W = 1
+  # variance of S1
   var_S1 = 1
+  # generate W and S1 by a multinormal distribution
   ws = rmvnorm(n, mean=rep(0.41,2),
                sigma=matrix(c( var_W ,corr_S1_W*sqrt(var_S1*var_W),
-                               corr_S1_W*sqrt(var_S1*var_W), var_S1),2,2)) # ws = rmvnorm(n, mean=rep(0.41,2),sigma=matrix(c(0.55^2,0.55^2*0.5,0.55^2*0.5,0.55^2),2,2))
-  # baseline covariate
+                               corr_S1_W*sqrt(var_S1*var_W), var_S1),2,2)) 
+  # baseline covariate W
   W = ws[,1]
-  # post-treatment biomarker
+  # post-treatment biomarker S1
   S1 = ws[,2]
+  #
   vaccine_efficacy = 0.75 # 0.5 for later
   betaW = -0.5
   betaS0 = -0.1
