@@ -41,25 +41,29 @@ generate.data = function(nv, np,  corr_S1_W) {
   W = ws[,1]
   # post-treatment biomarker S1
   S1 = ws[,2]
-  #
+  # Disease rate post marker measurement (from month 3 to month 24):
+  #     P(Y=1|A=0) = 0.04*(1.75/2) for the placebo group (A=0) and
+  #     P(Y=1|A=1) = 0.01*(1.75/2) for the vaccine group (A=1) (75% vaccine efficacy).
+  # vaccine efficacy
   vaccine_efficacy = 0.75 # 0.5 for later
   betaW = -0.5
   betaS0 = -0.1
   betaS1 = -1
+  # No mathematical form to calculate the coefficients, 
+  # so done by large sample size 10^6 approximation to ensure the P(Y=1|Z=0), P(Y=1|Z=1) above
   ws.l = rmvnorm(10^6, mean=rep(0.41,2),
                  sigma=matrix(c( var_W ,corr_S1_W*sqrt(var_S1*var_W),
                                  corr_S1_W*sqrt(var_S1*var_W), var_S1),2,2)) 
-  # baseline covariate
   W.l = ws.l[,1]
-  # post-treatment biomarker
   S1.l = ws.l[,2]
+  # find the root by solving functions to calculate coefficents beta0, beta1
   p0fun = function(x) mean(expit(x + betaW*W.l + betaS0*S1.l)-0.04*(1.75/2))
   beta0 = uniroot(p0fun,c(-100,100))$root
   p1fun = function(x) mean(expit(x + betaW*W.l + betaS1*S1.l)-0.04*(1.75/2)*(1-vaccine_efficacy))
   beta1 = uniroot(p1fun,c(-100,100))$root
-  # beta0 = -1.2
-  # beta1 = -1.8
+  # P(Y=1|A=0)
   prob0 = numeric(n)
+  # P(Y=1|A=1) 
   prob1 = numeric(n)
   for (i in 1:n) {
     prob0[i] = expit(beta0 + betaW*W[i] + betaS0*S1[i]) 
@@ -67,40 +71,46 @@ generate.data = function(nv, np,  corr_S1_W) {
   }
   Y0 = rbinom(n,1,prob0)
   Y1 = rbinom(n,1,prob1)
+  # observed Y
   Y = A*Y1 + (1-A)*Y0 
-  # S A=0, Y=1 missing
+  # S missing when A=0, Y=1 
   S = ifelse(A==1, S1, ifelse(Y==0, S1, NA)) 
-  # S A=1,Y=1 : A=1,Y=0 = 1:K , other A=1,Y=0 set missing, k = 4 first
+  # Nested case-control sampling design for measuring S, with S 
+  # measured in all A=1 subjects with Y=1 observed and in a simple 
+  # random sample of A=1 subjects with Y=0 observed.  
+  # The control:case ratio (i.e., Y=0:Y=1 ratio) could be set to 4 for the first simulations.
   k=4
   temp = table(A=A, Y=Y)
   numA1Y1 = temp[2,2]
   numA1Y0 = temp[2,1]
   numA0Y0 = temp[1,1]
+  # S A=1,Y=1 : A=1,Y=0 = 1:K
   numA1Y0S = min(temp[2,2]*k, temp[2,1])
+  # other A=1,Y=0 set to missing, indicators of missing S
   S.ind = sample(1:numA1Y0, numA1Y0-numA1Y0S, replace = FALSE)
   S[A==1&Y==0][S.ind] <- NA
   
-  # S A=0,Y=0 25% or 50% with S 75%
+  # S missingness when A=0,Y=0 by crossover rate 25% 50% 75%
   S.ind = sample(1:numA0Y0, floor((1-crossover_rate)*numA0Y0), replace = FALSE)
   S[A==0 & Y==0][S.ind] <- NA
   
-  # delta/P(delta=1|WAY) is the weight
-  # P(delta=1|W,A,Y)
-  # delta~W A Y stratify(A=0, A=1, Y=0, Y=1)
-  # A=1 Y=1 all 1
-  # A=1 Y=0 regress on W
-  # A=0 Y=1 delta=0
-  # A=0 Y=0 regress on W
+  # Calculate the weight Pi for S
+  # none missinngness of S
   delta = 1-is.na(S)
+  # delta/P(delta=1|W,A,Y) is the weight
   Pi = delta
+  # A=1 Y=1 Pi=1
+  # A=0 Y=1 Pi=1
   Pi[A==0&Y==1] <- 1
-  #fit <- glm (delta[A==1&Y==0] ~ W[A==1&Y==0], family = binomial) # take out W
-  fit <- glm (delta[A==1&Y==0] ~ 1, family = binomial)
+  # A=1 Y=0 regress on W for P(delta=1|W,A,Y)
+  fit <- glm (delta[A==1&Y==0] ~ W[A==1&Y==0], family = binomial) 
   Pi[A==1&Y==0] = delta[A==1&Y==0]/fit$fitted.values
-  #fit <- glm (delta[A==0&Y==0] ~ W[A==0&Y==0], family = binomial) # take out W
-  fit <- glm (delta[A==0&Y==0] ~ 1, family = binomial)
+  # A=0 Y=0 regress on W for P(delta=1|W,A,Y)
+  fit <- glm (delta[A==0&Y==0] ~ W[A==0&Y==0], family = binomial) 
   Pi[A==0&Y==0] = delta[A==0&Y==0]/fit$fitted.values
+  # observed variables
   observed = list(A=A, W=W, Y=Y, S1=S, Pi=Pi)
+  # unobserved variables
   unobserved = list(S1=S1,Y0=Y0,Y1=Y1)
   return(list(observed=observed, unobserved=unobserved))
 }
