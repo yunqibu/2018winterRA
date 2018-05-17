@@ -125,62 +125,53 @@ estimate <- function(dat, h, s1star) {
   n = length(A)
   nv = sum(A)
   np = n-nv
+  # normal kernal function with banndwith h
   Kh = function(x) exp(-(x/h)^2/2)/sqrt(2*pi)/h
   
   ############ initial estimate ############
-  SL.library <- c("SL.glm", "SL.glm.interaction", "SL.nnet", "SL.mean") ## drop these
+  SL.library <- c("SL.glm", "SL.glm.interaction", "SL.nnet", "SL.mean") 
   smooth.S1 = Kh(S1-s1star)
-  min.smooth.S1 = min(smooth.S1, na.rm=T)
-  max.smooth.S1 = max(smooth.S1, na.rm=T)
-  scaled.smooth.S1 = (smooth.S1-min.smooth.S1)/(max.smooth.S1-min.smooth.S1)
   P1hat = 0
   P2hat = 0
   P3hat = 0
-  
-  
-  
-  ##########
-  
-  # smooth.S1 = Kh(S1-s1star)
-  # min.smooth.S1 = min(smooth.S1, na.rm=T)
-  # max.smooth.S1 = max(smooth.S1, na.rm=T)
-  # 
-  # scaled.smooth.S1 = (smooth.S1-min.smooth.S1)/(max.smooth.S1-min.smooth.S1)
-  # fit1 <- SuperLearner(Y = scaled.smooth.S1[A==1&(!is.na(scaled.smooth.S1))],
-  #                      X = data.frame(W=W[A==1&(!is.na(scaled.smooth.S1))]),
-  #                      obsWeights = Pi[A==1&(!is.na(scaled.smooth.S1))],
-  #                      family = binomial(),
-  #                      SL.library = SL.library, method = "method.NNLS")
-  # P1hat = predict(fit1, data.frame(W))$pred
-  # P1hat <- P1hat*(max.smooth.S1-min.smooth.S1)+min.smooth.S1
+
   
   ###### Estimate the conditional density of P(S1=s1star|W) ##########
+  # make a data frame of all the needed variables
   temp=as.data.frame(cbind(S1=S1,W=W,Pi=Pi,s1star=s1star))
   
-  
+  # indicators of those with A=1 and none missing S1
   ind <- A==1 & (!is.na(S1))
-  # P(S1,W)
-  W.S1.density <- kde(x=temp[ind,c("S1", "W")]  # S1 and W
+  # P(S1=s1star,W) from kernal density estimation
+  W.S1.density <- kde(x=temp[ind,c("S1", "W")]  
                       ,eval.points = temp[,c("s1star", "W")] # estimate at s1star
                       ,w=temp$Pi[ind])
-  # P(W)
-  W.density <- kde(x=temp$W[ind], eval.points=temp$W) # ??? no weight here
-  # P(S1=s1star|W)
-  P1hat <- W.S1.density$estimate / W.density$estimate # ???larger than 1
+  pdf(file=
+        paste("Results/plots/kde_by_H.pdf", sep="")) 
+  par(mfrow = c(1,1))
+  for(vS1 in seq(0.1,1,0.1) ){
+    vW <- W.density$H
+    cS1W <- corr_S1_W*sqrt(vS1*vW)
+    plot(kde(x=temp[ind,c("S1", "W")],w=temp$Pi[ind]
+             , H=matrix(c(vS1, cS1W ,cS1W , vW),2,2)
+    ), col=2, main=vS1, xlim=c(-5,5), ylim=c(-2,4) )
+  }
+  dev.off()
+  
+  # P(W) from kernal density estimation
+  W.density <- kde(x=temp$W[ind], eval.points=temp$W) 
+  plot(kde(x=temp$W[ind]) )
+  # P(S1=s1star|W)= P(S1=s1star,W)/P(W)
+  P1hat <- W.S1.density$estimate / W.density$estimate 
   
   
-  
-  # fit1 <- SuperLearner(Y = scaled.smooth.S1[A==1 & Y==1 & (!is.na(scaled.smooth.S1))],
-  #                      X = data.frame(W=W[A==1 & Y==1 & (!is.na(scaled.smooth.S1))]),
-  #                      obsWeights = Pi[A==1 & Y==1 & (!is.na(scaled.smooth.S1))],
-  #                      family = binomial(),
-  #                      SL.library = SL.library, method = "method.NNLS")
+  # indicators of those with A=1 Y=1 and none missinng S1
   ind <- A==1 & Y==1 & (!is.na(S1))
-  # P(S1,W)
+  # P(S1=s1star,W) from kernal density estimation
   W.S1.density <- kde(x=temp[ind,c("S1", "W")]  
                       ,eval.points = temp[,c("s1star", "W")] 
                       ,w=temp$Pi[ind])
-  # P(W)
+  # P(W) from kernal density estimation
   W.density <- kde(x=temp$W[ind], eval.points=temp$W)
   fit2 <- SuperLearner(Y = Y[A==1],
                        X = data.frame(W=W[A==1]),
@@ -190,18 +181,13 @@ estimate <- function(dat, h, s1star) {
   
   
   
-  
-  # fit1 <- SuperLearner(Y = scaled.smooth.S1[A==0 & Y==0 & (!is.na(scaled.smooth.S1))], 
-  #                      X = data.frame(W=W[A==0 & Y==0 & (!is.na(scaled.smooth.S1))]), 
-  #                      obsWeights = Pi[A==0 & Y==0 & (!is.na(scaled.smooth.S1))],
-  #                      family = binomial(), 
-  #                      SL.library = SL.library, method = "method.NNLS") # rescale smooth.S1 to range 0,1, switch gaussian to binomial
+  # indicators of those with A=0 Y=0 and none missing S1
   ind <- A==0 & Y==0 & (!is.na(S1))
-  # P(S1,W)
+  # P(S1=s1star,W) from kernal density estimation
   W.S1.density <- kde(x=temp[ind,c("S1", "W")]  
                       ,eval.points = temp[,c("s1star", "W")] 
                       ,w=temp$Pi[ind])
-  # P(W)
+  # P(W) from kernal density estimation
   W.density <- kde(x=temp$W[ind], eval.points=temp$W)
   fit2 <- SuperLearner(Y = Y[A==0], 
                        X = data.frame(W=W[A==0]), 
@@ -209,7 +195,7 @@ estimate <- function(dat, h, s1star) {
                        SL.library = SL.library, method = "method.NNLS")
   P3hat = (W.S1.density$estimate / W.density$estimate) * (1-predict(fit2, data.frame(W=W))$pred) 
   
-  #A=1|W
+  # A=1|W
   fit = SuperLearner(Y = A, X = data.frame(W=W), family = binomial(), 
                      SL.library = SL.library, method = "method.NNLS")
   Ahat = as.vector(fit$SL.predict)
@@ -217,15 +203,14 @@ estimate <- function(dat, h, s1star) {
   #################### fluctuation #####################
   
   # missing for A=0 & Y=1
-  smooth.S1.nomissing = ifelse(is.na(smooth.S1), 100, smooth.S1) # change 100 to Inf, add flag to check weight>0 non S1 missing 
-  ###  replace ~ 1 to ~ A==1
-  
+  smooth.S1.nomissing = ifelse(is.na(smooth.S1), 100, smooth.S1) 
+  # none missing S1|A by poisson regression with weight
   fit1 = glm(smooth.S1.nomissing~ -1+I(A==1), weights = Pi*(A==1)/Ahat, offset = log(P1hat), family = poisson()) # Add in our weights
   P1star =  fit1$fitted.values 
-  ###  replace ~ 1 to ~ A==1,
+  # for Y=1, none missing S1|A by poisson regression with weight
   fit2 = glm((Y==1)*smooth.S1.nomissing ~ -1+I(A==1), weights = Pi*(A==1)/Ahat, offset = log(P2hat), family=poisson())
   P2star = fit2$fitted.values
-  ###  replace ~ 1 to ~ A==0
+  # for Y=0, none missing S1|A by poisson regression with weight
   fit3 = glm( (Y==0)*smooth.S1.nomissing ~ -1+I(A==0), weights = Pi*(A==0)/(1-Ahat), offset = log(P3hat), family=poisson())
   P3star = fit3$fitted.values
   
@@ -234,12 +219,12 @@ estimate <- function(dat, h, s1star) {
   psi1 = mean(P1star)
   psi2 = mean(P2star)
   psi3 = mean(P3star)
+  # psi=log(RR) 
   psi = log(psi2/(psi1-psi3))
-  init.psi = log(mean(P2hat)/(mean(P1hat)-mean(P3hat))) # not used, if engative return NA as a warning
-  # log(mean(P2hat)/(mean(P1hat)-mean(P3hat)))
+  init.psi = log(mean(P2hat)/(mean(P1hat)-mean(P3hat))) 
   
   ################### influence function/gradient ###############
-  D1 = Pi*((A==1)/Ahat*(smooth.S1.nomissing - P1star)) + P1star - psi1 # times the weight o the entire thing not seperate
+  D1 = Pi*((A==1)/Ahat*(smooth.S1.nomissing - P1star)) + P1star - psi1 
   D2 = Pi*((A==1)/Ahat*((Y==1)*smooth.S1.nomissing - P2star)) + P2star - psi2
   D3 = Pi*((A==0)/(1-Ahat)*((Y==0)*smooth.S1.nomissing - P3star)) + P3star - psi3
   g1 =-1/(psi1-psi3) # for target parameter log(RR)
@@ -248,7 +233,8 @@ estimate <- function(dat, h, s1star) {
   D = rowSums(cbind(g1 * D1 , g2 * D2 , g3 * D3), na.rm = T)
   # D = g1 * D1 + g2 * D2 + g3 * D3
   
-  sd = sqrt(sum(D^2,na.rm=TRUE)/n/n)# mean over entire n, not just on zero
+  # standard error for psi psi1 psi2 psi3
+  sd = sqrt(sum(D^2,na.rm=TRUE)/n/n) # mean over entire n, not just on zero
   sd1 = sqrt(sum(D1^2,na.rm=TRUE)/n/n)
   sd2 = sqrt(sum(D2^2,na.rm=TRUE)/n/n)
   sd3 = sqrt(sum(D3^2,na.rm=TRUE)/n/n)
@@ -256,9 +242,13 @@ estimate <- function(dat, h, s1star) {
   return(list(psi=psi,sd=sd,psi1=psi1,psi2=psi2,psi3=psi3,sd1=sd1,sd2=sd2,sd3=sd3,init.psi=init.psi,h=h))
 }
 
+# Approximated theortical truth of psi
 truth = function(s1star) {
   logit = function(x) log(x/(1-x))
   expit = function(x) exp(x)/(1+exp(x))
+  # Disease rate post marker measurement (from month 3 to month 24):
+  #     P(Y=1|A=0) = 0.04*(1.75/2) for the placebo group (A=0) and
+  #     P(Y=1|A=1) = 0.01*(1.75/2) for the vaccine group (A=1) (75% vaccine efficacy).
   var_W = 1
   var_S1 = 1
   corr_S1_W = corr_S1_W
@@ -266,17 +256,18 @@ truth = function(s1star) {
   b1 = -0.5
   b2 = -1
   b3 = -0.1
+  # No mathematical form to calculate the coefficients, 
+  # so done by large sample size 10^6 approximation to ensure the P(Y=1|Z=0), P(Y=1|Z=1) above
   ws.l = rmvnorm(10^6, mean=rep(0.41,2),
                  sigma=matrix(c( var_W ,corr_S1_W*sqrt(var_S1*var_W),
-                                 corr_S1_W*sqrt(var_S1*var_W), var_S1),2,2)) # ws = rmvnorm(n, mean=rep(0.41,2),sigma=matrix(c(0.55^2,0.55^2*0.5,0.55^2*0.5,0.55^2),2,2))
+                                 corr_S1_W*sqrt(var_S1*var_W), var_S1),2,2)) 
   W.l = ws.l[,1]
   S1.l = ws.l[,2]
+  # find the root by solving functions to calculate coefficents b00, b01
   p0fun = function(x) mean(expit(x + b1*W.l + b3*S1.l)-0.04*(1.75/2))
   b00 = uniroot(p0fun,c(-100,100))$root
   p1fun = function(x) mean(expit(x + b1*W.l + b2*S1.l)-0.04*(1.75/2)*(1-vaccine_efficacy))
   b01 = uniroot(p1fun,c(-100,100))$root
-  # b00 = -1.2
-  # b01 = -1.8
   
   #W, S1
   mu = rep(0.41,2)
@@ -286,7 +277,7 @@ truth = function(s1star) {
   sigma = matrix(c( var_W ,corr_S1_W*sqrt(var_S1*var_W),
                     corr_S1_W*sqrt(var_S1*var_W), var_S1),2,2)
   
-  psi1 = dnorm(s1star,mean=mu[2],sd=sqrt(sigma[2,2]))
+  psi1 = dnorm(s1star, mean=mu[2], sd=sqrt(sigma[2,2]))
   #conditional distribution of W|S1
   muW = mu[1]+sigma[1,2]/sigma[2,2]*(s1star - mu[2])
   sigW = sigma[1,1] - sigma[1,2]^2/sigma[2,2]
@@ -298,11 +289,13 @@ truth = function(s1star) {
   return(list(psi=psi, psi1=psi1, psi2=psi2, psi3=psi3))
 }
 
+# Truth from unobserved data of psi
 smooth.truth = function(dat, h, s1star) {
   S1 = dat$S1
   Y0 = dat$Y0
   Y1 = dat$Y1
   n = length(S1)
+  # normal kernal 
   Kh = function(x) exp(-(x/h)^2/2)/sqrt(2*pi)/h
   SL.library <- c("SL.glm", "SL.glm.interaction", "SL.step", "SL.nnet", "SL.mean")
   smooth.S1 = Kh(S1-s1star)
@@ -315,10 +308,11 @@ smooth.truth = function(dat, h, s1star) {
 }
 
 ############################################################
-############################################################
-
+# give a sequence of s1
 s1 = seq(0,1,by=0.1)
 lens = length(s1)
+
+# calculate the theortical truth of psi
 true.psi = numeric(lens)
 true.psi1 = numeric(lens)
 true.psi2 = numeric(lens)
@@ -331,29 +325,20 @@ for (j in 1:lens) {
   true.psi3[j] = out$psi3
 }
 
+# set up for truth of psi from unobserved data 
 smooth.true.psi = matrix(NA, 1, lens)
 smooth.true.psi1 = matrix(NA, 1, lens)
 smooth.true.psi2 = matrix(NA, 1, lens)
 smooth.true.psi3 = matrix(NA, 1, lens)
-
-# init.psi = matrix(NA, nrep, lens)
-# 
-# h.cv = matrix(NA, nrep, lens)
-# 
-# TMLE.psi = matrix(NA, nrep, lens)
-# TMLE.psi1 = matrix(NA, nrep, lens)
-# TMLE.psi2 = matrix(NA, nrep, lens)
-# TMLE.psi3 = matrix(NA, nrep, lens)
-# 
-# psi.sd = matrix(NA, nrep, lens)
-# psi.sd1 = matrix(NA, nrep, lens)
-# psi.sd2 = matrix(NA, nrep, lens)
-# psi.sd3 = matrix(NA, nrep, lens)
+# band with h for each s1, derived from cv
 hseq=c(0.5, 0.5, 0.6, 0.6, 0.6, 0.7, 0.7, 0.7, 0.8, 1.0, 1.0)
-#hseq=rep(0.9, 11)
+# gennerate a set of data
 dat = generate.data(nv=nv, np=np, corr_S1_W=corr_S1_W)
+# generate the saved file name before removing the aurguments
 name = paste("firstpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep="")
-#rm(iter) 
+# remove the following variables, will be given when runninng cluster
+rm(iter) 
 rm(corr_S1_W) 
 rm(crossover_rate) 
+# save the whole image for cluster
 save.image(file=name)
