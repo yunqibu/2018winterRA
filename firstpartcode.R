@@ -1,7 +1,7 @@
 #$ -S /usr/local/bin/Rscript
 
 # correlation between S1 and W
-corr_S1_W = 0.5
+corr_S1_W = 0.75
 # crossover rate of S
 crossover_rate = 0.5
 
