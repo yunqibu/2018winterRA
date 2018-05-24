@@ -3,7 +3,7 @@
 # correlation between S1 and W
 corr_S1_W = 0.75
 # crossover rate of S
-crossover_rate = 0.5
+crossover_rate = 0
 
 # setwd("~/Desktop/Peter Gilbert/2018winterRA/")
 library(SuperLearner)
