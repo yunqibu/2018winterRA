@@ -5,8 +5,8 @@ library(gmodels)
 if(2==3)
 {
   results <- array(,dim=c(11,10,100))
-  corr_S1_W = 0.5
-  crossover_rate = 0.5
+  corr_S1_W = 0.75
+  crossover_rate = 0
   for (iter in 44:100){
   print(iter)
   load(paste("Resultssecondpart:","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,"iter:",iter,".RData", sep=""))
@@ -94,10 +94,10 @@ else{
   withna <- read.csv( file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/includeNaN/0410corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
   }
 
-pdf(paste("~/Desktop/Peter Gilbert/2018winterRA/Results/plots/type1:0306corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".pdf", sep=""),
-    width=6,height=6,paper='special') 
-plot(nona[,c(20,11,16,12,2,10)])
-dev.off()
+# pdf(paste("~/Desktop/Peter Gilbert/2018winterRA/Results/plots/type1:0306corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".pdf", sep=""),
+#     width=6,height=6,paper='special') 
+# plot(nona[,c(20,11,16,12,2,10)])
+# dev.off()
 
 # pdf(paste("~/Desktop/Peter Gilbert/2018winterRA/Results/plots/type2:0306corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".pdf", sep=""),
 #     width=6,height=6,paper='special') 
