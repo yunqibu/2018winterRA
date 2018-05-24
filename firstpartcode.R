@@ -142,37 +142,38 @@ estimate <- function(dat, h, s1star) {
   
   # indicators of those with A=1 and none missing S1
   ind <- A==1 & (!is.na(S1))
-  # P(S1=s1star,W) from kernal density estimation
-  W.S1.density <- kde(x=temp[ind,c("S1", "W")]  
-                      ,eval.points = temp[,c("s1star", "W")] # estimate at s1star
-                      ,w=temp$Pi[ind])
-  pdf(file=
-        paste("Results/plots/kde_by_H.pdf", sep="")) 
-  par(mfrow = c(1,1))
-  for(vS1 in seq(0.1,1,0.1) ){
-    vW <- W.density$H
-    cS1W <- corr_S1_W*sqrt(vS1*vW)
-    plot(kde(x=temp[ind,c("S1", "W")],w=temp$Pi[ind]
-             , H=matrix(c(vS1, cS1W ,cS1W , vW),2,2)
-    ), col=2, main=vS1, xlim=c(-5,5), ylim=c(-2,4) )
-  }
-  dev.off()
+ 
   
   # P(W) from kernal density estimation
   W.density <- kde(x=temp$W[ind], eval.points=temp$W) 
-  plot(kde(x=temp$W[ind]) )
+  # Get bandwith for S1
+  S1.H <- kde(x=temp$S1[ind])$H
+  # Get bandwith for W
+  W.H <- W.density$H
+  # P(S1=s1star,W) from kernal density estimation, use bandwith from above univariate kde
+  W.S1.density <- kde(x=temp[ind,c("S1", "W")]  
+                      ,eval.points = temp[,c("s1star", "W")] # estimate at s1star
+                      ,w=temp$Pi[ind]
+                      ,H=matrix(c(S1.H,0,0,W.H),2,2))
   # P(S1=s1star|W)= P(S1=s1star,W)/P(W)
   P1hat <- W.S1.density$estimate / W.density$estimate 
   
   
   # indicators of those with A=1 Y=1 and none missinng S1
   ind <- A==1 & Y==1 & (!is.na(S1))
+  
+  # P(W) from kernal density estimation
+  W.density <- kde(x=temp$W[ind], eval.points=temp$W)
+  # Get bandwith for S1
+  S1.H <- kde(x=temp$S1[ind])$H
+  # Get bandwith for W
+  W.H <- W.density$H
   # P(S1=s1star,W) from kernal density estimation
   W.S1.density <- kde(x=temp[ind,c("S1", "W")]  
                       ,eval.points = temp[,c("s1star", "W")] 
-                      ,w=temp$Pi[ind])
-  # P(W) from kernal density estimation
-  W.density <- kde(x=temp$W[ind], eval.points=temp$W)
+                      ,w=temp$Pi[ind]
+                      ,H=matrix(c(S1.H,0,0,W.H),2,2))
+  
   fit2 <- SuperLearner(Y = Y[A==1],
                        X = data.frame(W=W[A==1]),
                        family = binomial(),
@@ -183,12 +184,17 @@ estimate <- function(dat, h, s1star) {
   
   # indicators of those with A=0 Y=0 and none missing S1
   ind <- A==0 & Y==0 & (!is.na(S1))
+  # P(W) from kernal density estimation
+  W.density <- kde(x=temp$W[ind], eval.points=temp$W)
+  # Get bandwith for S1
+  S1.H <- kde(x=temp$S1[ind])$H
+  # Get bandwith for W
+  W.H <- W.density$H
   # P(S1=s1star,W) from kernal density estimation
   W.S1.density <- kde(x=temp[ind,c("S1", "W")]  
                       ,eval.points = temp[,c("s1star", "W")] 
-                      ,w=temp$Pi[ind])
-  # P(W) from kernal density estimation
-  W.density <- kde(x=temp$W[ind], eval.points=temp$W)
+                      ,w=temp$Pi[ind]
+                      ,H=matrix(c(S1.H,0,0,W.H),2,2))
   fit2 <- SuperLearner(Y = Y[A==0], 
                        X = data.frame(W=W[A==0]), 
                        family = binomial(), 
