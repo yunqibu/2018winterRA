@@ -5,9 +5,9 @@ library(gmodels)
 if(2==3)
 {
   results <- array(,dim=c(11,10,100))
-  corr_S1_W = 0.75
-  crossover_rate = 0
-  for (iter in 44:100){
+  corr_S1_W = 0.5
+  crossover_rate = 0.5
+  for (iter in 1:100){
   print(iter)
   load(paste("Resultssecondpart:","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,"iter:",iter,".RData", sep=""))
   print("loaded")
@@ -82,9 +82,9 @@ for(i in 1:lens){
   RR.u.ci[is.na(RR.u.ci)]<-0
   nona$power[i] <-mean(RR.u.ci>1)
 }
-save(results, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/1000iter/0524corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep=""))
-write.csv(nona, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/removeNaN/0524corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
-write.csv(withna, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/includeNaN/0524corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
+save(results, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/1000iter/0530corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep=""))
+write.csv(nona, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/removeNaN/0530corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
+write.csv(withna, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/includeNaN/0530corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
 }
 else{
   corr_S1_W = 0.5
@@ -119,7 +119,7 @@ else{
 # }
 
 pdf(file=
-    paste("Results/plots/0524_all_psi_corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".pdf", sep="")) 
+    paste("Results/plots/0530_all_psi_corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".pdf", sep="")) 
 par(mfrow = c(1,1))
 for(i in 1:11){
   ci <- cbind(results[i,1,]-qnorm(0.975)*results[i,2,], 
@@ -155,7 +155,7 @@ if(2==3){
     nona$ci.coverage.true.psi[i] <- mean(nona$true.psi[i]>=ci[,1] & nona$true.psi[i]<=ci[,2], na.rm=T)
     nona$ci.coverage.smooth.true.psi[i] <-  mean(nona$smooth.true.psi[i]>=ci[,1] & nona$smooth.true.psi[i]<=ci[,2], na.rm=T)
   }
-  write.csv(nona, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/removeNaN/0509corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
-  write.csv(withna, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/includeNaN/0509corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
+  write.csv(nona, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/removeNaN/0530corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
+  write.csv(withna, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/includeNaN/0530corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
   
 }
