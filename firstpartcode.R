@@ -1,9 +1,15 @@
+# H^(6/5)
+# univariate kde add in the weights ?? non difference, H does nont change with/without weight
+
+# k really big to no matching case and see if we still have na
+# check mean(Pi*(A==1)/Ahat) == 1 ?? 0.9998339
+# For the cross over rate =1 case p3hat should be the same as none missing case
 #$ -S /usr/local/bin/Rscript
 
 # correlation between S1 and W
-corr_S1_W = 0.25
+corr_S1_W = 0.5
 # crossover rate of S
-crossover_rate = 0
+crossover_rate = 1
 
 # setwd("~/Desktop/Peter Gilbert/2018winterRA/")
 library(SuperLearner)
@@ -79,7 +85,7 @@ generate.data = function(nv, np,  corr_S1_W) {
   # measured in all A=1 subjects with Y=1 observed and in a simple 
   # random sample of A=1 subjects with Y=0 observed.  
   # The control:case ratio (i.e., Y=0:Y=1 ratio) could be set to 4 for the first simulations.
-  k=4
+  k=40000
   temp = table(A=A, Y=Y)
   numA1Y1 = temp[2,2]
   numA1Y0 = temp[2,1]
@@ -154,7 +160,7 @@ estimate <- function(dat, h, s1star) {
   W.S1.density <- kde(x=temp[ind,c("S1", "W")]  
                       ,eval.points = temp[,c("s1star", "W")] # estimate at s1star
                       ,w=temp$Pi[ind]
-                      ,H=matrix(c(S1.H,0,0,W.H),2,2))
+                      ,H=matrix(c(S1.H^(6/5),0,0,W.H^(6/5)),2,2))
   # P(S1=s1star|W)= P(S1=s1star,W)/P(W)
   P1hat <- W.S1.density$estimate / W.density$estimate 
   
@@ -172,7 +178,7 @@ estimate <- function(dat, h, s1star) {
   W.S1.density <- kde(x=temp[ind,c("S1", "W")]  
                       ,eval.points = temp[,c("s1star", "W")] 
                       ,w=temp$Pi[ind]
-                      ,H=matrix(c(S1.H,0,0,W.H),2,2))
+                      ,H=matrix(c(S1.H^(6/5),0,0,W.H^(6/5)),2,2))
   
   fit2 <- SuperLearner(Y = Y[A==1],
                        X = data.frame(W=W[A==1]),
@@ -194,7 +200,7 @@ estimate <- function(dat, h, s1star) {
   W.S1.density <- kde(x=temp[ind,c("S1", "W")]  
                       ,eval.points = temp[,c("s1star", "W")] 
                       ,w=temp$Pi[ind]
-                      ,H=matrix(c(S1.H,0,0,W.H),2,2))
+                      ,H=matrix(c(S1.H^(6/5),0,0,W.H^(6/5)),2,2))
   fit2 <- SuperLearner(Y = Y[A==0], 
                        X = data.frame(W=W[A==0]), 
                        family = binomial(), 
@@ -213,6 +219,8 @@ estimate <- function(dat, h, s1star) {
   # none missing S1|A by poisson regression with weight
   fit1 = glm(smooth.S1.nomissing~ -1+I(A==1), weights = Pi*(A==1)/Ahat, offset = log(P1hat), family = poisson()) # Add in our weights
   P1star =  fit1$fitted.values 
+  ##### ??? check if P1star = exp(log(P1hat)+(A==1)*coef(fit1)[1]) is the same
+  
   # for Y=1, none missing S1|A by poisson regression with weight
   fit2 = glm((Y==1)*smooth.S1.nomissing ~ -1+I(A==1), weights = Pi*(A==1)/Ahat, offset = log(P2hat), family=poisson())
   P2star = fit2$fitted.values
