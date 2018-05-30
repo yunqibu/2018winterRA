@@ -2,11 +2,11 @@ setwd("~/Desktop/Peter Gilbert/2018winterRA")
 library(mvtnorm )
 library(ks)
 library(gmodels)
-if(2==3)
+if(2!=3)
 {
   results <- array(,dim=c(11,10,100))
   corr_S1_W = 0.5
-  crossover_rate = 0.5
+  crossover_rate = 1
   for (iter in 1:100){
   print(iter)
   load(paste("Resultssecondpart:","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,"iter:",iter,".RData", sep=""))
@@ -143,7 +143,7 @@ for(i in 1:11){
 }
 dev.off()
 
-if(2==3){
+if(2!=3){
   for(i in 1:lens){
     ci <- cbind(results[i,1,]-qnorm(0.975)*results[i,2,], 
                 results[i,1,]+qnorm(0.975)*results[i,2,])
