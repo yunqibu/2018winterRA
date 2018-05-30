@@ -1,15 +1,18 @@
-# H^(6/5)
+# latex pdf, settings and tidy tables
+# type 1 error
+# run nonmissing with the missingness code
 # univariate kde add in the weights ?? non difference, H does nont change with/without weight
 
 # k really big to no matching case and see if we still have na
 # check mean(Pi*(A==1)/Ahat) == 1 ?? 0.9998339
 # For the cross over rate =1 case p3hat should be the same as none missing case
+# univariate kde still add inn the weights
 #$ -S /usr/local/bin/Rscript
 
 # correlation between S1 and W
 corr_S1_W = 0.75
 # crossover rate of S
-crossover_rate = 1
+crossover_rate = 0.5
 
 # setwd("~/Desktop/Peter Gilbert/2018winterRA/")
 library(SuperLearner)
@@ -85,7 +88,7 @@ generate.data = function(nv, np,  corr_S1_W) {
   # measured in all A=1 subjects with Y=1 observed and in a simple 
   # random sample of A=1 subjects with Y=0 observed.  
   # The control:case ratio (i.e., Y=0:Y=1 ratio) could be set to 4 for the first simulations.
-  k=40000
+  k=4
   temp = table(A=A, Y=Y)
   numA1Y1 = temp[2,2]
   numA1Y0 = temp[2,1]

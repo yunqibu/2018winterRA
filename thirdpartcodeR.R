@@ -5,7 +5,7 @@ library(gmodels)
 if(2!=3)
 {
   results <- array(,dim=c(11,10,100))
-  corr_S1_W = 0.5
+  corr_S1_W = 0.75
   crossover_rate = 1
   for (iter in 1:100){
   print(iter)
@@ -13,7 +13,7 @@ if(2!=3)
   print("loaded")
   results[,,iter] <- array(unlist(out.tmle), dim = c(nrow(out.tmle), ncol(out.tmle)))
   colnames(results[,,iter]) <- colnames(out.tmle)
-}
+  }
 
 my.mean<-function(x){mean(x, na.rm = TRUE)}
 nona <- as.data.frame(apply(results,c(1,2), my.mean))
@@ -89,9 +89,9 @@ write.csv(withna, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/inclu
 else{
   corr_S1_W = 0.5
   crossover_rate = 0.5
-  load(file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/1000iter/0410corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep=""))
-  nona <- read.csv( file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/removeNaN/0410corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
-  withna <- read.csv( file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/includeNaN/0410corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
+  load(file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/1000iter/0530corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep=""))
+  nona <- read.csv( file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/removeNaN/0530corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
+  withna <- read.csv( file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/includeNaN/0530corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
   }
 
 # pdf(paste("~/Desktop/Peter Gilbert/2018winterRA/Results/plots/type1:0306corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".pdf", sep=""),
@@ -159,3 +159,4 @@ if(2!=3){
   write.csv(withna, file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/includeNaN/0530corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".csv", sep=""))
   
 }
+
