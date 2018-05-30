@@ -187,20 +187,21 @@ estimate <- function(dat, h=0.1, s1star) {
   fit = SuperLearner(Y = A, X = data.frame(W=W), family = binomial(), 
                      SL.library = SL.library, method = "method.NNLS")
   Ahat = as.vector(fit$SL.predict)
-  
+  inds = which(P1hat<P3hat)
+  P1hat[inds] <- P3hat[inds] <- (P1hat[inds] + P3hat[inds])/2
   #################### fluctuation #####################
   
   # missing for A=0 & Y=1
   smooth.S1.nomissing = ifelse(is.na(smooth.S1), 100, smooth.S1) # change 100 to Inf, add flag to check weight>0 non S1 missing 
   ###  replace ~ 1 to ~ A==1
   
-  fit1 = glm(smooth.S1.nomissing~ -1+I(A==1), weights = Pi*(A==1)/Ahat, offset = log(P1hat), family = poisson()) # Add in our weights
+  fit1 = glm(smooth.S1.nomissing~ 1, weights = Pi*(A==1)/Ahat, offset = log(P1hat), family = poisson()) # Add in our weights
   P1star =  fit1$fitted.values 
   ###  replace ~ 1 to ~ A==1,
-  fit2 = glm((Y==1)*smooth.S1.nomissing ~ -1+I(A==1), weights = Pi*(A==1)/Ahat, offset = log(P2hat), family=poisson())
+  fit2 = glm((Y==1)*smooth.S1.nomissing ~ 1, weights = Pi*(A==1)/Ahat, offset = log(P2hat), family=poisson())
   P2star = fit2$fitted.values
   ###  replace ~ 1 to ~ A==0
-  fit3 = glm( (Y==0)*smooth.S1.nomissing ~ -1+I(A==0), weights = Pi*(A==0)/(1-Ahat), offset = log(P3hat), family=poisson())
+  fit3 = glm( (Y==0)*smooth.S1.nomissing ~ 1, weights = Pi*(A==0)/(1-Ahat), offset = log(P3hat), family=poisson())
   P3star = fit3$fitted.values
   
   

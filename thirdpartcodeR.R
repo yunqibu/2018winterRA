@@ -6,7 +6,7 @@ if(2!=3)
 {
   results <- array(,dim=c(11,10,100))
   corr_S1_W = 0.75
-  crossover_rate = 1
+  crossover_rate = 0.5
   for (iter in 1:100){
   print(iter)
   load(paste("Resultssecondpart:","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,"iter:",iter,".RData", sep=""))
