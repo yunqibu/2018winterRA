@@ -88,7 +88,7 @@ generate.data = function(nv, np,  corr_S1_W) {
   # measured in all A=1 subjects with Y=1 observed and in a simple 
   # random sample of A=1 subjects with Y=0 observed.  
   # The control:case ratio (i.e., Y=0:Y=1 ratio) could be set to 4 for the first simulations.
-  k=4
+  k=50
   temp = table(A=A, Y=Y)
   numA1Y1 = temp[2,2]
   numA1Y0 = temp[2,1]
@@ -135,8 +135,11 @@ estimate <- function(dat, h=0.1, s1star) {
   np = n-nv
   Kh = function(x) exp(-(x/h)^2/2)/sqrt(2*pi)/h
   
-  ############ initial estimate ############
-  SL.library <- c("SL.glm", "SL.glm.interaction",  "SL.nnet", "SL.mean") ## drop these
+  #
+  ########### initial estimate ############
+  SL.library <- c(#"SL.glm", "SL.glm.interaction",  "SL.nnet", 
+                  "SL.mean", 
+                  "SL.earth","SL.glm","SL.loess") ## drop these
   smooth.S1 = Kh(S1-s1star)
   min.smooth.S1 = min(smooth.S1, na.rm=T)
   max.smooth.S1 = max(smooth.S1, na.rm=T)
@@ -154,9 +157,10 @@ estimate <- function(dat, h=0.1, s1star) {
   fit1 <- SuperLearner(Y = scaled.smooth.S1[A==1&(!is.na(scaled.smooth.S1))],
                        X = data.frame(W=W[A==1&(!is.na(scaled.smooth.S1))]),
                        obsWeights = Pi[A==1&(!is.na(scaled.smooth.S1))],
-                       family = binomial(),
-                       SL.library = SL.library, method = "method.NNLS")
-  P1hat = predict(fit1, data.frame(W))$pred
+                       #family = binomial(),
+                       SL.library = SL.library, method = "method.NNLS",newX=data.frame(W))
+  #P1hat = predict(fit1, data.frame(W))$pred
+  P1hat <- fit1$SL.predict[,1]
   P1hat <- P1hat*(max.smooth.S1-min.smooth.S1)+min.smooth.S1
   
   
@@ -204,8 +208,8 @@ estimate <- function(dat, h=0.1, s1star) {
   fit3 = glm( (Y==0)*smooth.S1.nomissing ~ 1, weights = Pi*(A==0)/(1-Ahat), offset = log(P3hat), family=poisson())
   P3star = fit3$fitted.values
   
-  inds = which(P1star<P3star)
-  P1star[inds] <- P3star[inds] <- (P1star[inds] + P3star[inds])/2
+  #inds = which(P1star<P3star)
+  #P1star[inds] <- P3star[inds] <- (P1star[inds] + P3star[inds])/2
   ################### estimation #######################
   psi1 = mean(P1star)
   psi2 = mean(P2star)
