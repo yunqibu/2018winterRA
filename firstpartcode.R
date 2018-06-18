@@ -10,7 +10,7 @@
 #$ -S /usr/local/bin/Rscript
 
 # correlation between S1 and W
-corr_S1_W = 0.75
+corr_S1_W = 0.5
 # crossover rate of S
 crossover_rate = 0.5
 
@@ -187,8 +187,8 @@ estimate <- function(dat, h=0.1, s1star) {
   fit = SuperLearner(Y = A, X = data.frame(W=W), family = binomial(), 
                      SL.library = SL.library, method = "method.NNLS")
   Ahat = as.vector(fit$SL.predict)
-  inds = which(P1hat<P3hat)
-  P1hat[inds] <- P3hat[inds] <- (P1hat[inds] + P3hat[inds])/2
+  #inds = which(P1hat<P3hat)
+  #P1hat[inds] <- P3hat[inds] <- (P1hat[inds] + P3hat[inds])/2
   #################### fluctuation #####################
   
   # missing for A=0 & Y=1
@@ -204,7 +204,8 @@ estimate <- function(dat, h=0.1, s1star) {
   fit3 = glm( (Y==0)*smooth.S1.nomissing ~ 1, weights = Pi*(A==0)/(1-Ahat), offset = log(P3hat), family=poisson())
   P3star = fit3$fitted.values
   
-  
+  inds = which(P1star<P3star)
+  P1star[inds] <- P3star[inds] <- (P1star[inds] + P3star[inds])/2
   ################### estimation #######################
   psi1 = mean(P1star)
   psi2 = mean(P2star)
@@ -230,6 +231,8 @@ estimate <- function(dat, h=0.1, s1star) {
   
   return(list(psi=psi,sd=sd,psi1=psi1,psi2=psi2,psi3=psi3,sd1=sd1,sd2=sd2,sd3=sd3,init.psi=init.psi,h=h))
 }
+#############
+
 # estimate <- function(dat, h, s1star) {
 #   A = dat$A
 #   W = dat$W

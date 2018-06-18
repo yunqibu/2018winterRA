@@ -1,7 +1,7 @@
 #$ -S /usr/local/bin/Rscript
 
 
-corr_S1_W = 0.5
+corr_S1_W = 0.7
 crossover_rate = 0.25
 
 # setwd("~/Desktop/Peter Gilbert/2018winterRA/")
