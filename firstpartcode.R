@@ -4,11 +4,11 @@
 
 #$ -S /usr/local/bin/Rscript
 
-# correlation between S1 and W
+# correlation between S1 and W  0.25, 0.5, 0.75
 corr_S1_W = 0.5
-# crossover rate of S in A=0 Y=0
-crossover_rate_A0Y0 = 0.5
-# crossover rate of S in A=1 
+# crossover rate of S in A=0 Y=0   0.25, 0.5, 1
+crossover_rate_A0Y0 = 0.25
+# crossover rate of S in A=1   0.25, 0.5, 1
 crossover_rate_A1 = 0.5
 
 # setwd("~/Desktop/Peter Gilbert/2018winterRA/")
@@ -312,7 +312,6 @@ dat = generate.data(nv=nv, np=np,
 name = paste("firstpart", "corr_S1_W:",corr_S1_W,
              "crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1,".RData", sep="")
 # remove the following variables, will be given when runninng cluster
-rm(iter) 
 rm(corr_S1_W) 
 rm(crossover_rate_A0Y0) 
 rm(crossover_rate_A1) 

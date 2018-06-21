@@ -4,12 +4,13 @@ library(ks)
 library(gmodels)
 if(2!=3)
 {
-  results <- array(,dim=c(11,10,30))
+  results <- array(,dim=c(11,10,10))
   corr_S1_W = 0.5
-  crossover_rate = 0.5
-  for (iter in 1:30){
+  crossover_rate_A0Y0 = 0.5
+  crossover_rate_A1 = 0.5
+  for (iter in 1:10){
   print(iter)
-  load(paste("Resultssecondpart:","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,"iter:",iter,".RData", sep=""))
+  load(paste("Resultssecondpart:","corr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1,"iter:",iter,".RData", sep=""))
   print("loaded")
   results[,,iter] <- array(unlist(out.tmle), dim = c(nrow(out.tmle), ncol(out.tmle)))
   colnames(results[,,iter]) <- colnames(out.tmle)
@@ -22,7 +23,7 @@ colnames(withna) <- colnames(out.tmle)
 colnames(nona) <- colnames(out.tmle) 
 rownames(nona) <- rownames(out.tmle) 
 rownames(withna) <- rownames(out.tmle) 
-load(paste("firstpart","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,".RData", sep=""))
+load(paste("firstpart","corr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1,".RData", sep=""))
 rep.smooth <- 10
 smooth.true.psi <- array(,dim=c(lens,rep.smooth))
 smooth.true.psi1 <- array(,dim=c(lens,rep.smooth))
@@ -32,7 +33,10 @@ smooth.true.psi3 <- array(,dim=c(lens,rep.smooth))
 for (i in 1:rep.smooth){
   print(i)
   for (j in 1:lens) {
-    dat = generate.data(nv=nv, np=np, corr_S1_W=corr_S1_W)
+    dat = generate.data(nv=nv, np=np, 
+                        corr_S1_W=corr_S1_W, 
+                        crossover_rate_A0Y0=crossover_rate_A0Y0, 
+                        crossover_rate_A1=crossover_rate_A1)
     out.smooth = smooth.truth(dat=dat$unobs, h=nona$h[j], s1star=s1[j])
     smooth.true.psi[j,i] = out.smooth$psi
     smooth.true.psi1[j,i] = out.smooth$psi1
