@@ -36,6 +36,6 @@ out.tmle <- foreach(j = 1:lens, .combine='rbind') %dopar% {
 row.names(out.tmle) <- s1
  out.tmle
 save(out.tmle, file=paste("Resultssecondpart:","corr_S1_W:",corr_S1_W,
-                          "crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1,".RData", sep=""))
+                          "crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1,"iter:",iter,".RData", sep=""))
 
 
