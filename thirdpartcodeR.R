@@ -4,10 +4,10 @@ library(ks)
 library(gmodels)
 if(2!=3)
 {
-  results <- array(,dim=c(11,10,100))
+  results <- array(,dim=c(11,10,30))
   corr_S1_W = 0.5
   crossover_rate = 0.5
-  for (iter in 1:100){
+  for (iter in 1:30){
   print(iter)
   load(paste("Resultssecondpart:","corr_S1_W:",corr_S1_W,"crossover_rate:",crossover_rate,"iter:",iter,".RData", sep=""))
   print("loaded")
@@ -50,12 +50,13 @@ withna$smooth.true.psi1 = rowMeans(smooth.true.psi1)
 withna$smooth.true.psi2 = rowMeans(smooth.true.psi2)
 withna$smooth.true.psi3 = rowMeans(smooth.true.psi3)
 
+# calculate the theortical truth of psi
 true.psi = numeric(lens)
 true.psi1 = numeric(lens)
 true.psi2 = numeric(lens)
 true.psi3 = numeric(lens)
 for (j in 1:lens) {
-  out = truth(s1[j])
+  out = truth(s1star=s1[j],corr_S1_W=corr_S1_W)
   true.psi[j] = out$psi
   true.psi1[j] = out$psi1
   true.psi2[j] = out$psi2
