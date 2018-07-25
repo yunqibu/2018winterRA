@@ -1,0 +1,12 @@
+Loading required package: nnls
+Super Learner
+Version: 2.0-22
+Package created on 2017-07-18
+
+Loading required package: iterators
+Loading required package: parallel
+Warning message:
+glm.fit: algorithm did not converge 
+Error in { : task 5 failed - "NA/NaN/Inf in 'y'"
+Calls: %dopar% -> <Anonymous>
+Execution halted
