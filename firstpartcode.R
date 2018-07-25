@@ -55,8 +55,10 @@ generate.data = function(nv, np,  corr_S1_W, crossover_rate_A0Y0, crossover_rate
   # vaccine efficacy
   vaccine_efficacy = 0.75 # 0.5 for later
   betaW = -0.5
-  betaS0 = -0.1 #-0.55 for null case
-  betaS1 = -1 #-0.55 for null case
+  # betaS0 = -0.1 
+  betaS0 = -0.55 #-0.55 for null case
+  # betaS1 = -1 
+  betaS1 = -0.55 #-0.55 for null case
   # No mathematical form to calculate the coefficients, 
   # so done by large sample size 10^6 approximation to ensure the P(Y=1|Z=0), P(Y=1|Z=1) above
   ws.l = rmvnorm(10^6, mean=rep(0.41,2),
@@ -311,7 +313,7 @@ dat = generate.data(nv=nv, np=np,
                     crossover_rate_A0Y0=crossover_rate_A0Y0, 
                     crossover_rate_A1=crossover_rate_A1)
 # generate the saved file name before removing the aurguments
-name = paste("firstpart", "corr_S1_W:",corr_S1_W,
+name = paste("nullfirstpart", "corr_S1_W:",corr_S1_W,
              "crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1,".RData", sep="")
 # remove the following variables, will be given when runninng cluster
 rm(corr_S1_W) 
