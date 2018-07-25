@@ -4,12 +4,14 @@
 
 #$ -S /usr/local/bin/Rscript
 
+
+##  add the null case for all settings
 # correlation between S1 and W  0.25, 0.5, 0.75
-corr_S1_W = 0.5
+corr_S1_W = 0.25
 # crossover rate of S in A=0 Y=0   0.25, 0.5, 1
-crossover_rate_A0Y0 = 0.25
+crossover_rate_A0Y0 = 1
 # crossover rate of S in A=1   0.25, 0.5, 1
-crossover_rate_A1 = 0.5
+crossover_rate_A1 = 1
 
 # setwd("~/Desktop/Peter Gilbert/2018winterRA/")
 library(SuperLearner)
@@ -53,8 +55,8 @@ generate.data = function(nv, np,  corr_S1_W, crossover_rate_A0Y0, crossover_rate
   # vaccine efficacy
   vaccine_efficacy = 0.75 # 0.5 for later
   betaW = -0.5
-  betaS0 = -0.1
-  betaS1 = -1
+  betaS0 = -0.1 #-0.55 for null case
+  betaS1 = -1 #-0.55 for null case
   # No mathematical form to calculate the coefficients, 
   # so done by large sample size 10^6 approximation to ensure the P(Y=1|Z=0), P(Y=1|Z=1) above
   ws.l = rmvnorm(10^6, mean=rep(0.41,2),
@@ -73,7 +75,7 @@ generate.data = function(nv, np,  corr_S1_W, crossover_rate_A0Y0, crossover_rate
   prob1 = numeric(n)
   for (i in 1:n) {
     prob0[i] = expit(beta0 + betaW*W[i] + betaS0*S1[i]) 
-    prob1[i] = expit(beta1 + betaW*W[i] + betaS1*S1[i]) 
+    prob1[i] = expit(beta1 + betaW*W[i] + betaS1*S1[i]) # let betaS0=betaS1 for null case
   }
   Y0 = rbinom(n,1,prob0)
   Y1 = rbinom(n,1,prob1)
@@ -102,7 +104,7 @@ generate.data = function(nv, np,  corr_S1_W, crossover_rate_A0Y0, crossover_rate
   # delta/P(delta=1|W,A,Y) is the weight
   Pi = delta
   # A=1 Y=1 Pi=1 
-  # A=0 Y=1 Pi=1 ##### Still keep as 1???
+  # A=0 Y=1 Pi=1 
   Pi[A==0&Y==1] <- 1
   # A=1 Y=0 regress on W for P(delta=1|W,A,Y)
   fit <- glm (delta[A==1&Y==0] ~ W[A==1&Y==0], family = binomial) 
@@ -148,14 +150,13 @@ estimate <- function(dat, h=0.1, s1star) {
   fit1 <- SuperLearner(Y = scaled.smooth.S1[A==1&(!is.na(scaled.smooth.S1))],
                        X = data.frame(W=W[A==1&(!is.na(scaled.smooth.S1))]),
                        obsWeights = Pi[A==1&(!is.na(scaled.smooth.S1))],
-                       #family = binomial(),
+                       family = binomial(),
                        SL.library = SL.library, method = "method.NNLS",
                        newX=data.frame(W))
-  #P1hat = predict(fit1, data.frame(W))$pred
   P1hat <- fit1$SL.predict[,1]
   P1hat <- P1hat*(max.smooth.S1-min.smooth.S1)+min.smooth.S1
-  
-  
+
+
   fit1 <- SuperLearner(Y = scaled.smooth.S1[A==1 & Y==1 & (!is.na(scaled.smooth.S1))],
                        X = data.frame(W=W[A==1 & Y==1 & (!is.na(scaled.smooth.S1))]),
                        obsWeights = Pi[A==1 & Y==1 & (!is.na(scaled.smooth.S1))],
@@ -168,21 +169,21 @@ estimate <- function(dat, h=0.1, s1star) {
                        SL.library = SL.library, method = "method.NNLS",
                        newX=data.frame(W))
   P2hat = (fit1$SL.predict[,1]*(max.smooth.S1-min.smooth.S1)+min.smooth.S1) * fit2$SL.predict[,1]
-  
-  
-  fit1 <- SuperLearner(Y = scaled.smooth.S1[A==0 & Y==0 & (!is.na(scaled.smooth.S1))], 
-                       X = data.frame(W=W[A==0 & Y==0 & (!is.na(scaled.smooth.S1))]), 
+
+
+  fit1 <- SuperLearner(Y = scaled.smooth.S1[A==0 & Y==0 & (!is.na(scaled.smooth.S1))],
+                       X = data.frame(W=W[A==0 & Y==0 & (!is.na(scaled.smooth.S1))]),
                        obsWeights = Pi[A==0 & Y==0 & (!is.na(scaled.smooth.S1))],
-                       family = binomial(), 
+                       family = binomial(),
                        SL.library = SL.library, method = "method.NNLS",
                        newX=data.frame(W)) # rescale smooth.S1 to range 0,1, switch gaussian to binomial
-  fit2 <- SuperLearner(Y = Y[A==0], 
-                       X = data.frame(W=W[A==0]), 
-                       family = binomial(), 
+  fit2 <- SuperLearner(Y = Y[A==0],
+                       X = data.frame(W=W[A==0]),
+                       family = binomial(),
                        SL.library = SL.library, method = "method.NNLS",
                        newX=data.frame(W))
-  P3hat = (fit1$SL.predict[,1]*(max.smooth.S1-min.smooth.S1)+min.smooth.S1) * (1-fit1$SL.predict[,1]) 
-  
+  P3hat = (fit1$SL.predict[,1]*(max.smooth.S1-min.smooth.S1)+min.smooth.S1) * (1-fit1$SL.predict[,1])
+
   #A=1|W
   fit = SuperLearner(Y = A, X = data.frame(W=W), family = binomial(), 
                      SL.library = SL.library, method = "method.NNLS")
@@ -198,10 +199,10 @@ estimate <- function(dat, h=0.1, s1star) {
   fit1 = glm(smooth.S1.nomissing~ 1, weights = Pi*(A==1)/Ahat, offset = log(P1hat), family = poisson()) # Add in our weights
   P1star =  fit1$fitted.values 
   ###  replace ~ 1 to ~ A==1,
-  fit2 = glm((Y==1)*smooth.S1.nomissing ~ 1, weights = Pi*(A==1)/Ahat, offset = log(P2hat), family=poisson())
+  fit2 = glm((Y==1)*smooth.S1.nomissing ~  1, weights = Pi*(A==1)/Ahat, offset = log(P2hat), family=poisson())
   P2star = fit2$fitted.values
   ###  replace ~ 1 to ~ A==0
-  fit3 = glm( (Y==0)*smooth.S1.nomissing ~ 1, weights = Pi*(A==0)/(1-Ahat), offset = log(P3hat), family=poisson())
+  fit3 = glm( (Y==0)*smooth.S1.nomissing ~  1, weights = Pi*(A==0)/(1-Ahat), offset = log(P3hat), family=poisson())
   P3star = fit3$fitted.values
   
   #inds = which(P1star<P3star)
@@ -302,7 +303,8 @@ s1 = seq(0,1,by=0.1)
 lens = length(s1)
 
 # band with h for each s1, derived from cv
-hseq=c(0.5, 0.5, 0.6, 0.6, 0.6, 0.7, 0.7, 0.7, 0.8, 1.0, 1.0)
+#hseq=c(0.5, 0.5, 0.6, 0.6, 0.6, 0.7, 0.7, 0.7, 0.8, 1.0, 1.0)
+hseq <- rep(.8, 11)
 # gennerate a set of data
 dat = generate.data(nv=nv, np=np, 
                     corr_S1_W=corr_S1_W, 
