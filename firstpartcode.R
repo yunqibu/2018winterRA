@@ -7,7 +7,7 @@
 
 ##  add the null case for all settings
 # correlation between S1 and W  0.25, 0.5, 0.75
-corr_S1_W = 0.25
+corr_S1_W = 0.75
 # crossover rate of S in A=0 Y=0   0.25, 0.5, 1
 crossover_rate_A0Y0 = 1
 # crossover rate of S in A=1   0.25, 0.5, 1
