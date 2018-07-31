@@ -1,11 +1,7 @@
-# latex pdf, settings and tidy tables
-# type 1 error
-# run nonmissing with the missingness code
-
 #$ -S /usr/local/bin/Rscript
 
 
-##  add the null case for all settings
+
 # correlation between S1 and W  0.25, 0.5, 0.75
 corr_S1_W = 0.75
 # crossover rate of S in A=0 Y=0   0.25, 0.5, 1
@@ -29,6 +25,14 @@ nv = 4200
 # control, placebo
 np = 3000
 
+betaW = -0.5
+# betaS0 = -0.1 
+betaS0 = -0.55 #-0.55 for null case
+# betaS1 = -1 
+betaS1 = -0.55 #-0.55 for null case
+b1 = betaW
+b2 = betaS1
+b3 = betaS0
 
 generate.data = function(nv, np,  corr_S1_W, crossover_rate_A0Y0, crossover_rate_A1) {
   logit = function(x) log(x/(1-x))
@@ -54,11 +58,11 @@ generate.data = function(nv, np,  corr_S1_W, crossover_rate_A0Y0, crossover_rate
   #     P(Y=1|A=1) = 0.01*(1.75/2) for the vaccine group (A=1) (75% vaccine efficacy).
   # vaccine efficacy
   vaccine_efficacy = 0.75 # 0.5 for later
-  betaW = -0.5
+  #betaW = -0.5
   # betaS0 = -0.1 
-  betaS0 = -0.55 #-0.55 for null case
+  #betaS0 = -0.55 #-0.55 for null case
   # betaS1 = -1 
-  betaS1 = -0.55 #-0.55 for null case
+  #betaS1 = -0.55 #-0.55 for null case
   # No mathematical form to calculate the coefficients, 
   # so done by large sample size 10^6 approximation to ensure the P(Y=1|Z=0), P(Y=1|Z=1) above
   ws.l = rmvnorm(10^6, mean=rep(0.41,2),
@@ -245,9 +249,9 @@ truth = function(s1star, corr_S1_W) {
   var_W = 1
   var_S1 = 1
   vaccine_efficacy = 0.75 
-  b1 = -0.5
-  b2 = -1
-  b3 = -0.1
+  #b1 = -0.5
+  #b2 = -1
+  #b3 = -0.1
   # No mathematical form to calculate the coefficients, 
   # so done by large sample size 10^6 approximation to ensure the P(Y=1|Z=0), P(Y=1|Z=1) above
   ws.l = rmvnorm(10^6, mean=rep(0.41,2),
@@ -265,7 +269,7 @@ truth = function(s1star, corr_S1_W) {
   mu = rep(0.41,2)
   var_W = 1
   var_S1 = 1
-  corr_S1_W = 0.5
+  #corr_S1_W = 0.5
   sigma = matrix(c( var_W ,corr_S1_W*sqrt(var_S1*var_W),
                     corr_S1_W*sqrt(var_S1*var_W), var_S1),2,2)
   

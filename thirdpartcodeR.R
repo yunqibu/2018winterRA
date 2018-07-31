@@ -8,7 +8,7 @@ if(2!=3)
   corr_S1_W = 0.75
   crossover_rate_A0Y0 = 1
   crossover_rate_A1 = 0.25
-  for (iter in 77:100){
+  for (iter in 1:100){
   print(iter)
   load(paste("nullResultssecondpart:","corr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1,"iter:",iter,".RData", sep=""))
   print("loaded")
