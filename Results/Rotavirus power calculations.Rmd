@@ -67,8 +67,8 @@ The above set-up gives 54 scenarios:
 corr_S1_W= 0.25
 crossover_rate_A0Y0= 0.25
 crossover_rate_A1 = 0.25
-al.nona <- read.csv( file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/TidyTable/corr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1, ".csv", sep=""))[,-1]
-null.nona <- read.csv( file=paste("~/Desktop/Peter Gilbert/2018winterRA/Results/TidyTable/nullcorr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1, ".csv", sep=""))[,-1]
+al.nona <- read.csv( file=paste("TidyTable/corr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1, ".csv", sep=""))[,-1]
+null.nona <- read.csv( file=paste("TidyTable/nullcorr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1, ".csv", sep=""))[,-1]
 print(paste("cor(S1,W)=",corr_S1_W,", crossover rate=",crossover_rate_A0Y0,", sample rate=",crossover_rate_A1, sep=""))
 print("Alternative case")
 al.nona
