@@ -1,0 +1,142 @@
+---
+title: "Rotavirus power calculations "
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Simulation study design
+
+$A\ :=$ 2-arm randomized trial.
+
+- $N_v = 4200$ in the vaccine group $(A=1)$.
+- $N_p = 3000$ in the placebo group $(A=0)$.
+
+$S\ :=$ the immune response marker of interest measured at month 3 (observed).
+
+- $S_1 :=$ the potential outcome of $S$ if assigned to the vaccine arm  $(A=1)$.
+- $S_0 :=$ the potential outcome of $S$ if assigned to the placebo arm  $(A=0)$, not used in this analysis.
+
+
+$W\ :=$ the baseline predictor
+
+- $(W,S_1)$ ~ bivariate normal with var($W$)=var($S_1)=1$ and $\rho=$cor$(W,S_1) = 0.25, 0.5, 0.75$.
+
+$Y\ :=$ occurrence of the rotavirus disease by 2 years post enrollment 
+(i.e. after a 1.75-year follow-up period after $S$ is measured at month 3). 
+ 
+Ideal population for inference is subjects at-risk for $Y=1$ at month 3.
+(i.e., did not experience the primary rotavirus disease endpoint by month 3).  
+
+Practically, the implementation of the method would only include subjects who are observed to attend the month 3 visit without occurrence of the rotavirus by month 3.
+
+Marginal disease rate post marker measurement (from month 3 to month 24):
+
+- $P(Y=1|A=0) = 0.04\times(1.75/2)$ for the placebo group. 
+- $P(Y=1|A=1) = 0.01\times(1.75/2)$ for the vaccine group (75% vaccine efficacy(VE)).
+ 
+#### Case-cohort sampling design for measuring $S$:
+
+- $S$ measured in all $A=1$ subjects with $Y=1$ observed, 
+- $S$ also measured in a simple random sample of all $A=1$ subjects. (sampling rate $=\ 25\%, 50\%, 100\%$)
+
+For placebo recipients $A=0$ who complete follow-up with $Y=0$, cross-over $25\%, 50\%, 100\%$ to receive the vaccine and have S measured 3 months after the cross-over.  This is used only for filling in $S=S_1$, and we assume that no crossed-over subjects experience the primary rotavirus endpoint between month 24 and month 27.
+
+#### Hypothesis of interest is 
+
+- Null $H_0: \text{VE}_s=$VE (i.e., no modification of VE by the marker $S_1$).
+- Alternative $H_1: \text{VE}_s\neq$VE (some effect modification).
+
+Generation of $Y$: (with marginals kept)
+
+- Null case: $Y$ generated with $W$ and $S_1$.
+- Alternative case: $Y$ generated with $W$ alone.
+
+The above set-up gives 54 scenarios:
+
+- $\rho=(0.25,0.5,0.75)\ \times$ sampling rate $= (25\%, 50\%, 100\%)\ \times$ cross-over fraction $= (25\%, 50\%, 100\%)\ \times$ hypothesis=(null, alternative).
+
+
+## Simulation results
+
+Results on all 54 scenarios
+
+```{r, echo=FALSE,  results="asis"}
+library(knitr)
+for (corr_S1_W in c(0.25,0.5,0.75)){
+  for (crossover_rate_A0Y0 in c(0.25,0.5,1)){
+    for (crossover_rate_A1 in c(0.25,0.5,1)){
+      
+al.nona <- read.csv( file=paste("TidyTable/corr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1, ".csv", sep=""))[,-1]
+null.nona <- read.csv( file=paste("TidyTable/nullcorr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1, ".csv", sep=""))[,-1]
+tab <- kable(al.nona, caption=paste("Alternative case for cor(S1,W)=",corr_S1_W,", crossover rate=",crossover_rate_A0Y0,", sample rate=",crossover_rate_A1, sep=""), format="html")
+print(tab, type="html")
+tab <-kable(null.nona, caption=paste("Null case for cor(S1,W)=",corr_S1_W,", crossover rate=",crossover_rate_A0Y0,", sample rate=",crossover_rate_A1, sep=""), format="html")
+print(tab, type="html")
+    }
+  }
+}
+```
+
+
+```{r, echo=FALSE,  results="asis"}
+for (corr_S1_W in c(0.25,0.5,0.75)){
+  for (crossover_rate_A0Y0 in c(0.25,0.5,1)){
+    for (crossover_rate_A1 in c(0.25,0.5,1)){
+      load(file=paste("1000iter/0725nullcorr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1,".RData", sep=""))
+      nona <- read.csv( file=paste("TidyTable/nullcorr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1, ".csv", sep=""))[,-1]
+
+      
+for(i in 1:11){
+  ci <- cbind(results[i,1,]-qnorm(0.975)*results[i,2,], 
+              results[i,1,]+qnorm(0.975)*results[i,2,])
+  yrange <- range(c(nona$true.psi,nona$smooth.true.psi,results[,c(1,9),]),na.rm=T)
+  #yrange[1] <- yrange[1]-1
+  #yrange[2] <- yrange[2]+1
+  plot(results[i,1,], ylim=yrange,col="blue",pch=15, xlab="iteration",ylab="psi")
+  points(results[i,9,], col="orange", type="p", pch=17)
+  points(ci[,1], type="l", lty=3 ,col="blue")
+  points(ci[,2], type="l", lty=3 ,col="blue")
+  abline(h=nona$Truth[i],col="red", lty=1)
+  abline(h=nona$Smooth.Truth[i],col="brown", lty=2)
+  
+  legend( x="topright", 
+          legend=c("Truth","log(RR)","Smooth Truth","Initial Estimate","95% CI"),
+          col=c("red","blue","brown","orange","blue"), lwd=1, lty=c(1,NA,2,NA,3),
+          pch=c(NA,15,NA,17,NA) )
+  title(main=paste("s1=",nona$s1star[i]," Null case for cor(S1,W)=",corr_S1_W,", crossover rate=",crossover_rate_A0Y0,", sample rate=",crossover_rate_A1,sep=""), cex.main=0.9)
+  
+}
+      
+     load(file=paste("1000iter/0725corr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1,".RData", sep=""))
+      nona <- read.csv( file=paste("TidyTable/corr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1, ".csv", sep=""))[,-1]
+      
+for(i in 1:11){
+  ci <- cbind(results[i,1,]-qnorm(0.975)*results[i,2,], 
+              results[i,1,]+qnorm(0.975)*results[i,2,])
+  yrange <- range(c(nona$true.psi,nona$smooth.true.psi,results[,c(1,9),]),na.rm=T)
+  #yrange[1] <- yrange[1]-1
+  #yrange[2] <- yrange[2]+1
+  plot(results[i,1,], ylim=yrange,col="blue",pch=15, xlab="iteration",ylab="psi")
+  points(results[i,9,], col="orange", type="p", pch=17)
+  points(ci[,1], type="l", lty=3 ,col="blue")
+  points(ci[,2], type="l", lty=3 ,col="blue")
+  abline(h=nona$Truth[i],col="red", lty=1)
+  abline(h=nona$Smooth.Truth[i],col="brown", lty=2)
+  
+  legend( x="topright", 
+          legend=c("Truth","log(RR)","Smooth Truth","Initial Estimate","95% CI"),
+          col=c("red","blue","brown","orange","blue"), lwd=1, lty=c(1,NA,2,NA,3),
+          pch=c(NA,15,NA,17,NA) )
+  title(main=paste("s1=",nona$s1star[i]," Alternative case for cor(S1,W)=",corr_S1_W,", crossover rate=",crossover_rate_A0Y0,", sample rate=",crossover_rate_A1,sep=""), cex.main=0.9)
+  
+}
+    }
+  }
+}
+```
+
+
+
