@@ -1,4 +1,4 @@
-"","Estimate log(RR)","Standard Error","Initial Estimate","Bandwith","Smooth Truth","Truth","s1star","Percent of Estimation Missing","Truth CI coverage"
+"","log(RR)","SE","Initial Estimate","Bandwith","Smooth Truth","Truth","s1star","Missing","CI coverage"
 "1",-1.308,1.963,-4.237,0.8,-1.452,-1.41,0,0.07,0.957
 "2",-1.382,2.736,-4.301,0.8,-1.382,-1.412,0.1,0.09,0.934
 "3",-1.471,3.472,-4.359,0.8,-1.416,-1.414,0.2,0.11,0.921

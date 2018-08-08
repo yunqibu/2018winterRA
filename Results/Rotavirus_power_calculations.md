@@ -62,10 +62,10 @@ Alternative case for cor(S1,W)=0.25, crossover rate=0.25, sample rate=0.25
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -83,7 +83,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -419,10 +419,10 @@ Null case for cor(S1,W)=0.25, crossover rate=0.25, sample rate=0.25
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -440,10 +440,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -776,10 +776,10 @@ Alternative case for cor(S1,W)=0.25, crossover rate=0.25, sample rate=0.5
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -797,7 +797,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -1133,10 +1133,10 @@ Null case for cor(S1,W)=0.25, crossover rate=0.25, sample rate=0.5
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -1154,10 +1154,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -1490,10 +1490,10 @@ Alternative case for cor(S1,W)=0.25, crossover rate=0.25, sample rate=1
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -1511,7 +1511,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -1847,10 +1847,10 @@ Null case for cor(S1,W)=0.25, crossover rate=0.25, sample rate=1
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -1868,10 +1868,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -2204,10 +2204,10 @@ Alternative case for cor(S1,W)=0.25, crossover rate=0.5, sample rate=0.25
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -2225,7 +2225,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -2561,10 +2561,10 @@ Null case for cor(S1,W)=0.25, crossover rate=0.5, sample rate=0.25
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -2582,10 +2582,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -2918,10 +2918,10 @@ Alternative case for cor(S1,W)=0.25, crossover rate=0.5, sample rate=0.5
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -2939,7 +2939,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -3275,10 +3275,10 @@ Null case for cor(S1,W)=0.25, crossover rate=0.5, sample rate=0.5
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -3296,10 +3296,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -3632,10 +3632,10 @@ Alternative case for cor(S1,W)=0.25, crossover rate=0.5, sample rate=1
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -3653,7 +3653,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -3989,10 +3989,10 @@ Null case for cor(S1,W)=0.25, crossover rate=0.5, sample rate=1
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -4010,10 +4010,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -4346,10 +4346,10 @@ Alternative case for cor(S1,W)=0.25, crossover rate=1, sample rate=0.25
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -4367,7 +4367,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -4703,10 +4703,10 @@ Null case for cor(S1,W)=0.25, crossover rate=1, sample rate=0.25
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -4724,10 +4724,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -5060,10 +5060,10 @@ Alternative case for cor(S1,W)=0.25, crossover rate=1, sample rate=0.5
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -5081,7 +5081,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -5417,10 +5417,10 @@ Null case for cor(S1,W)=0.25, crossover rate=1, sample rate=0.5
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -5438,10 +5438,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -5774,10 +5774,10 @@ Alternative case for cor(S1,W)=0.25, crossover rate=1, sample rate=1
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -5795,7 +5795,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -6131,10 +6131,10 @@ Null case for cor(S1,W)=0.25, crossover rate=1, sample rate=1
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -6152,10 +6152,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -6488,10 +6488,10 @@ Alternative case for cor(S1,W)=0.5, crossover rate=0.25, sample rate=0.25
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -6509,7 +6509,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -6845,10 +6845,10 @@ Null case for cor(S1,W)=0.5, crossover rate=0.25, sample rate=0.25
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -6866,10 +6866,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -7202,10 +7202,10 @@ Alternative case for cor(S1,W)=0.5, crossover rate=0.25, sample rate=0.5
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -7223,7 +7223,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -7559,10 +7559,10 @@ Null case for cor(S1,W)=0.5, crossover rate=0.25, sample rate=0.5
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -7580,10 +7580,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -7916,10 +7916,10 @@ Alternative case for cor(S1,W)=0.5, crossover rate=0.25, sample rate=1
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -7937,7 +7937,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -8273,10 +8273,10 @@ Null case for cor(S1,W)=0.5, crossover rate=0.25, sample rate=1
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -8294,10 +8294,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -8630,10 +8630,10 @@ Alternative case for cor(S1,W)=0.5, crossover rate=0.5, sample rate=0.25
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -8651,7 +8651,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -8987,10 +8987,10 @@ Null case for cor(S1,W)=0.5, crossover rate=0.5, sample rate=0.25
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -9008,10 +9008,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -9344,10 +9344,10 @@ Alternative case for cor(S1,W)=0.5, crossover rate=0.5, sample rate=0.5
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -9365,7 +9365,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -9701,10 +9701,10 @@ Null case for cor(S1,W)=0.5, crossover rate=0.5, sample rate=0.5
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -9722,10 +9722,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -10058,10 +10058,10 @@ Alternative case for cor(S1,W)=0.5, crossover rate=0.5, sample rate=1
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -10079,7 +10079,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -10415,10 +10415,10 @@ Null case for cor(S1,W)=0.5, crossover rate=0.5, sample rate=1
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -10436,10 +10436,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -10772,10 +10772,10 @@ Alternative case for cor(S1,W)=0.5, crossover rate=1, sample rate=0.25
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -10793,7 +10793,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -11129,10 +11129,10 @@ Null case for cor(S1,W)=0.5, crossover rate=1, sample rate=0.25
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -11150,10 +11150,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -11486,10 +11486,10 @@ Alternative case for cor(S1,W)=0.5, crossover rate=1, sample rate=0.5
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -11507,7 +11507,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -11843,10 +11843,10 @@ Null case for cor(S1,W)=0.5, crossover rate=1, sample rate=0.5
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -11864,10 +11864,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -12200,10 +12200,10 @@ Alternative case for cor(S1,W)=0.5, crossover rate=1, sample rate=1
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -12221,7 +12221,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -12557,10 +12557,10 @@ Null case for cor(S1,W)=0.5, crossover rate=1, sample rate=1
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -12578,10 +12578,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -12914,10 +12914,10 @@ Alternative case for cor(S1,W)=0.75, crossover rate=0.25, sample rate=0.25
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -12935,7 +12935,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -13271,10 +13271,10 @@ Null case for cor(S1,W)=0.75, crossover rate=0.25, sample rate=0.25
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -13292,10 +13292,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -13628,10 +13628,10 @@ Alternative case for cor(S1,W)=0.75, crossover rate=0.25, sample rate=0.5
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -13649,7 +13649,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -13985,10 +13985,10 @@ Null case for cor(S1,W)=0.75, crossover rate=0.25, sample rate=0.5
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -14006,10 +14006,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -14342,10 +14342,10 @@ Alternative case for cor(S1,W)=0.75, crossover rate=0.25, sample rate=1
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -14363,7 +14363,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -14699,10 +14699,10 @@ Null case for cor(S1,W)=0.75, crossover rate=0.25, sample rate=1
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -14720,10 +14720,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -15056,10 +15056,10 @@ Alternative case for cor(S1,W)=0.75, crossover rate=0.5, sample rate=0.25
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -15077,7 +15077,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -15413,10 +15413,10 @@ Null case for cor(S1,W)=0.75, crossover rate=0.5, sample rate=0.25
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -15434,10 +15434,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -15770,10 +15770,10 @@ Alternative case for cor(S1,W)=0.75, crossover rate=0.5, sample rate=0.5
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -15791,7 +15791,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -16127,10 +16127,10 @@ Null case for cor(S1,W)=0.75, crossover rate=0.5, sample rate=0.5
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -16148,10 +16148,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -16484,10 +16484,10 @@ Alternative case for cor(S1,W)=0.75, crossover rate=0.5, sample rate=1
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -16505,7 +16505,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -16841,10 +16841,10 @@ Null case for cor(S1,W)=0.75, crossover rate=0.5, sample rate=1
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -16862,10 +16862,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -17198,10 +17198,10 @@ Alternative case for cor(S1,W)=0.75, crossover rate=1, sample rate=0.25
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -17219,7 +17219,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -17555,10 +17555,10 @@ Null case for cor(S1,W)=0.75, crossover rate=1, sample rate=0.25
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -17576,10 +17576,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -17912,10 +17912,10 @@ Alternative case for cor(S1,W)=0.75, crossover rate=1, sample rate=0.5
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -17933,7 +17933,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -18269,10 +18269,10 @@ Null case for cor(S1,W)=0.75, crossover rate=1, sample rate=0.5
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -18290,10 +18290,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
@@ -18626,10 +18626,10 @@ Alternative case for cor(S1,W)=0.75, crossover rate=1, sample rate=1
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -18647,7 +18647,7 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
 Power
@@ -18983,10 +18983,10 @@ Null case for cor(S1,W)=0.75, crossover rate=1, sample rate=1
 <thead>
 <tr>
 <th style="text-align:right;">
-Estimate.log.RR.
+log.RR.
 </th>
 <th style="text-align:right;">
-Standard.Error
+SE
 </th>
 <th style="text-align:right;">
 Initial.Estimate
@@ -19004,10 +19004,10 @@ Truth
 s1star
 </th>
 <th style="text-align:right;">
-Percent.of.Estimation.Missing
+Missing
 </th>
 <th style="text-align:right;">
-Truth.CI.coverage
+CI.coverage
 </th>
 </tr>
 </thead>
