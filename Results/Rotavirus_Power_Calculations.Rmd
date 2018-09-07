@@ -1,6 +1,9 @@
 ---
 title: "Rotavirus power calculations "
-output: github_document
+output: 
+  github_document:
+    toc: true # table of content true
+    toc_depth: 6  # upto three depths of headings (specified by #, ## and ###)
 ---
 
 ```{r setup, include=FALSE}
@@ -40,11 +43,11 @@ Marginal disease rate post marker measurement (from month 3 to month 24):
 #### Case-cohort sampling design for measuring $S$:
 
 - $S$ measured in all $A=1$ subjects with $Y=1$ observed, 
-- $S$ also measured in a simple random sample of all $A=1$ subjects. (sampling rate $=\ 25\%, 50\%, 100\%$)
+- $S$ also measured in a simple random sample of all $A=1$ subjects. (vaccines cohort inclusion probability $=\ 25\%, 50\%, 100\%$)
 
 For placebo recipients $A=0$ who complete follow-up with $Y=0$, cross-over $25\%, 50\%, 100\%$ to receive the vaccine and have S measured 3 months after the cross-over.  This is used only for filling in $S=S_1$, and we assume that no crossed-over subjects experience the primary rotavirus endpoint between month 24 and month 27.
 
-#### Hypothesis of interest is 
+#### Hypothesis of interest
 
 - Null $H_0: \text{VE}_s=$VE (i.e., no modification of VE by the marker $S_1$).
 - Alternative $H_1: \text{VE}_s\neq$VE (some effect modification).
@@ -56,86 +59,103 @@ Generation of $Y$: (with marginals kept)
 
 The above set-up gives 54 scenarios:
 
-- $\rho=(0.25,0.5,0.75)\ \times$ sampling rate $= (25\%, 50\%, 100\%)\ \times$ cross-over fraction $= (25\%, 50\%, 100\%)\ \times$ hypothesis=(null, alternative).
+- Correlation $\rho=(0.25,0.5,0.75)\ \times$ vaccines cohort inclusion probability $=\ (25\%, 50\%, 100\%)\ \times$ cross-over fraction $= (25\%, 50\%, 100\%)\ \times$ hypothesis = (null, alternative).
 
 
 ## Simulation results
 
-Results on all 54 scenarios
+### Tables of results on all 54 scenarios
 
-```{r, echo=FALSE,  results="asis"}
+
+```{r, echo=FALSE,  results="asis", cache=TRUE}
 library(knitr)
-for (corr_S1_W in c(0.25,0.5,0.75)){
+for (crossover_rate_A1 in c(0.25,0.5,1)){
+  cat("  \n#### Vaccines cohort inclusion probability = ",crossover_rate_A1, "\n")
+  cat("  \n")
   for (crossover_rate_A0Y0 in c(0.25,0.5,1)){
-    for (crossover_rate_A1 in c(0.25,0.5,1)){
-      
-al.nona <- read.csv( file=paste("TidyTable/corr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1, ".csv", sep=""))[,-1]
-null.nona <- read.csv( file=paste("TidyTable/nullcorr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1, ".csv", sep=""))[,-1]
-tab <- kable(al.nona, caption=paste("Alternative case for cor(S1,W)=",corr_S1_W,", crossover rate=",crossover_rate_A0Y0,", sample rate=",crossover_rate_A1, sep=""), format="html")
-print(tab, type="html")
-tab <-kable(null.nona, caption=paste("Null case for cor(S1,W)=",corr_S1_W,", crossover rate=",crossover_rate_A0Y0,", sample rate=",crossover_rate_A1, sep=""), format="html")
-print(tab, type="html")
+    cat("  \n##### Crossover rate = ",  crossover_rate_A0Y0, "\n")
+    cat("  \n")
+    for (corr_S1_W in c(0.25,0.5,0.75)){
+      cat("  \n###### Cor(S1,W) = ",  corr_S1_W, "\n")
+      cat("  \n")
+      cat("  \n - Alternative \n")
+      cat("  \n")
+      al.nona <- read.csv( file=paste("TidyTable/corr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1, ".csv", sep=""))[,-1]
+      null.nona <- read.csv( file=paste("TidyTable/nullcorr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1, ".csv", sep=""))[,-1]
+      tab <- kable(al.nona, caption=paste("Results for alternative case where vaccines cohort inclusion probability =",crossover_rate_A1, ", crossover rate=",crossover_rate_A0Y0," cor(S1,W)=",corr_S1_W, sep=""), format="html", cex.main=0.8)
+      print(tab, type="html")
+      cat("  \n - Null \n")
+      cat("  \n")
+      tab <-kable(null.nona, caption=paste("Results for null case where vaccines cohort inclusion probability =",crossover_rate_A1, ", crossover rate=",crossover_rate_A0Y0,", cor(S1,W)=",corr_S1_W, sep=""), format="html")
+      print(tab, type="html")
     }
   }
 }
 ```
 
-
-```{r, echo=FALSE,  results="asis"}
-for (corr_S1_W in c(0.25,0.5,0.75)){
+### Figures of results on all 54 scenarios
+```{r, echo=FALSE,  results="asis", cache=TRUE}
+for (crossover_rate_A1 in c(0.25,0.5,1)){
+  cat("  \n#### Vaccines cohort inclusion probability = ",crossover_rate_A1, "\n")
+  cat("  \n")
   for (crossover_rate_A0Y0 in c(0.25,0.5,1)){
-    for (crossover_rate_A1 in c(0.25,0.5,1)){
+    cat("  \n##### Crossover rate = ",  crossover_rate_A0Y0, "\n")
+    cat("  \n")
+    for (corr_S1_W in c(0.25,0.5,0.75)){
+      cat("  \n###### Cor(S1,W) = ",  corr_S1_W, "\n")
+      cat("  \n")
+      
+      cat("  \n Alternative \n")
+      load(file=paste("1000iter/0725corr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1,".RData", sep=""))
+      nona <- read.csv( file=paste("TidyTable/corr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1, ".csv", sep=""))[,-1]
+     
+      for(i in 1:11){
+  
+        ci <- cbind(results[i,1,]-qnorm(0.975)*results[i,2,],
+              results[i,1,]+qnorm(0.975)*results[i,2,])
+        yrange <- range(c(nona$true.psi,nona$smooth.true.psi,results[,c(1,9),]),na.rm=T)
+
+        plot(results[i,1,], ylim=yrange,col="blue",pch=15, xlab="iteration",ylab="psi")
+        points(results[i,9,], col="orange", type="p", pch=17)
+        points(ci[,1], type="l", lty=3 ,col="blue")
+        points(ci[,2], type="l", lty=3 ,col="blue")
+        abline(h=nona$Truth[i],col="red", lty=1)
+        abline(h=nona$Smooth.Truth[i],col="brown", lty=2)
+
+        legend( x="topright",
+          legend=c("Theoretical Truth","Estimate log(RR)","Smooth Truth","Initial Estimate","95% CI"),
+          col=c("red","blue","brown","orange","blue"), lwd=1, lty=c(1,NA,2,NA,3),
+          pch=c(NA,15,NA,17,NA) )
+        title(main=paste("Figure of log(RR) under the alternative case where the vaccines cohort\n inclusion probability=",crossover_rate_A1,", crossover rate=",crossover_rate_A0Y0, ", cor(S1,W)=",corr_S1_W,", s1=",nona$s1star[i], sep=""), cex.main=0.9)
+
+      }
+      cat("  \n")
+      
+      cat("  \n - Null \n")
+      
       load(file=paste("1000iter/0725nullcorr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1,".RData", sep=""))
       nona <- read.csv( file=paste("TidyTable/nullcorr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1, ".csv", sep=""))[,-1]
+      for(i in 1:11){
+      ci <- cbind(results[i,1,]-qnorm(0.975)*results[i,2,],
+              results[i,1,]+qnorm(0.975)*results[i,2,])
+      yrange <- range(c(nona$true.psi,nona$smooth.true.psi,results[,c(1,9),]),na.rm=T)
 
+      plot(results[i,1,], ylim=yrange,col="blue",pch=15, xlab="iteration",ylab="psi")
+      points(results[i,9,], col="orange", type="p", pch=17)
+      points(ci[,1], type="l", lty=3 ,col="blue")
+      points(ci[,2], type="l", lty=3 ,col="blue")
+      abline(h=nona$Truth[i],col="red", lty=1)
+      abline(h=nona$Smooth.Truth[i],col="brown", lty=2)
+
+      legend( x="topright", legend=c("Theoretical Truth","Estimate log(RR)","Smooth Truth","Initial Estimate","95% CI"), col=c("red","blue","brown","orange","blue"), lwd=1, lty=c(1,NA,2,NA,3), pch=c(NA,15,NA,17,NA) )
+   title(main=paste("Figure of log(RR) under the null case where the vaccines cohort\n inclusion probability=",crossover_rate_A1,", crossover rate=",crossover_rate_A0Y0, ", cor(S1,W)=",corr_S1_W,", s1=",nona$s1star[i], sep=""), cex.main=0.9)
+ }
+      cat("  \n")
       
-for(i in 1:11){
-  ci <- cbind(results[i,1,]-qnorm(0.975)*results[i,2,], 
-              results[i,1,]+qnorm(0.975)*results[i,2,])
-  yrange <- range(c(nona$true.psi,nona$smooth.true.psi,results[,c(1,9),]),na.rm=T)
-  #yrange[1] <- yrange[1]-1
-  #yrange[2] <- yrange[2]+1
-  plot(results[i,1,], ylim=yrange,col="blue",pch=15, xlab="iteration",ylab="psi")
-  points(results[i,9,], col="orange", type="p", pch=17)
-  points(ci[,1], type="l", lty=3 ,col="blue")
-  points(ci[,2], type="l", lty=3 ,col="blue")
-  abline(h=nona$Truth[i],col="red", lty=1)
-  abline(h=nona$Smooth.Truth[i],col="brown", lty=2)
-  
-  legend( x="topright", 
-          legend=c("Truth","log(RR)","Smooth Truth","Initial Estimate","95% CI"),
-          col=c("red","blue","brown","orange","blue"), lwd=1, lty=c(1,NA,2,NA,3),
-          pch=c(NA,15,NA,17,NA) )
-  title(main=paste("s1=",nona$s1star[i]," Null case for cor(S1,W)=",corr_S1_W,", crossover rate=",crossover_rate_A0Y0,", sample rate=",crossover_rate_A1,sep=""), cex.main=0.9)
-  
-}
-      
-     load(file=paste("1000iter/0725corr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1,".RData", sep=""))
-      nona <- read.csv( file=paste("TidyTable/corr_S1_W:",corr_S1_W,"crossover_rate_A0Y0:",crossover_rate_A0Y0,"crossover_rate_A1:",crossover_rate_A1, ".csv", sep=""))[,-1]
-      
-for(i in 1:11){
-  ci <- cbind(results[i,1,]-qnorm(0.975)*results[i,2,], 
-              results[i,1,]+qnorm(0.975)*results[i,2,])
-  yrange <- range(c(nona$true.psi,nona$smooth.true.psi,results[,c(1,9),]),na.rm=T)
-  #yrange[1] <- yrange[1]-1
-  #yrange[2] <- yrange[2]+1
-  plot(results[i,1,], ylim=yrange,col="blue",pch=15, xlab="iteration",ylab="psi")
-  points(results[i,9,], col="orange", type="p", pch=17)
-  points(ci[,1], type="l", lty=3 ,col="blue")
-  points(ci[,2], type="l", lty=3 ,col="blue")
-  abline(h=nona$Truth[i],col="red", lty=1)
-  abline(h=nona$Smooth.Truth[i],col="brown", lty=2)
-  
-  legend( x="topright", 
-          legend=c("Truth","log(RR)","Smooth Truth","Initial Estimate","95% CI"),
-          col=c("red","blue","brown","orange","blue"), lwd=1, lty=c(1,NA,2,NA,3),
-          pch=c(NA,15,NA,17,NA) )
-  title(main=paste("s1=",nona$s1star[i]," Alternative case for cor(S1,W)=",corr_S1_W,", crossover rate=",crossover_rate_A0Y0,", sample rate=",crossover_rate_A1,sep=""), cex.main=0.9)
-  
-}
     }
   }
 }
+
 ```
 
 
